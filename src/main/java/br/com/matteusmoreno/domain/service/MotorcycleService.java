@@ -1,5 +1,6 @@
 package br.com.matteusmoreno.domain.service;
 
+import br.com.matteusmoreno.domain.dto.UpdateMotorcycleRequestDto;
 import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.repository.MotorcycleRepository;
 import br.com.matteusmoreno.domain.dto.CreateMotorcycleRequestDto;
@@ -33,7 +34,7 @@ public class MotorcycleService {
                 .brand(request.brand().toUpperCase())
                 .model(request.model().toUpperCase())
                 .plate(request.plate().toUpperCase())
-                .year(request.year())
+                .year(request.year().toUpperCase())
                 .color(request.color().toUpperCase())
                 .chassis(request.chassis().toUpperCase())
                 .available(request.available())
@@ -46,15 +47,36 @@ public class MotorcycleService {
     }
 
     public Motorcycle findMotorcycleById(String motorcycleId) {
+        log.info("Finding motorcycle {}", motorcycleId);
         return this.motorcycleRepository.findMotorcycleById(motorcycleId);
     }
 
     public List<Motorcycle> findAllMotorcycles() {
+        log.info("Finding all motorcycles");
         return this.motorcycleRepository.listAll();
     }
 
     public List<Motorcycle> findAllAvailableMotorcycles() {
+        log.info("Finding all available motorcycles");
         return this.motorcycleRepository.findAllAvailableMotorcycles();
+    }
+
+    public Motorcycle updateMotorcycle(UpdateMotorcycleRequestDto request) {
+        log.info("Updating motorcycle {}", request);
+        Motorcycle motorcycle = this.findMotorcycleById(request.motorcycleId());
+
+        if (request.renavam() != null) motorcycle.setRenavam(request.renavam().toUpperCase());
+        if (request.brand() != null) motorcycle.setBrand(request.brand().toUpperCase());
+        if (request.model() != null) motorcycle.setModel(request.model().toUpperCase());
+        if (request.plate() != null) motorcycle.setPlate(request.plate().toUpperCase());
+        if (request.year() != null) motorcycle.setYear(request.year());
+        if (request.color() != null) motorcycle.setColor(request.color().toUpperCase());
+        if (request.chassis() != null) motorcycle.setChassis(request.chassis().toUpperCase());
+        if (request.available() != null) motorcycle.setAvailable(request.available());
+
+        this.motorcycleRepository.update(motorcycle);
+
+        return motorcycle;
     }
 
 }

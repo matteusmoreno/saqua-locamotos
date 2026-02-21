@@ -1,6 +1,7 @@
 package br.com.matteusmoreno.domain.controller;
 
 import br.com.matteusmoreno.domain.dto.CreateMotorcycleRequestDto;
+import br.com.matteusmoreno.domain.dto.UpdateMotorcycleRequestDto;
 import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.service.MotorcycleService;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -31,5 +32,9 @@ public class MotorcycleController {
 
     public List<Motorcycle> findAllAvailableMotorcycles() {
         return this.motorcycleService.findAllAvailableMotorcycles();
+    }
+
+    public  Motorcycle updateMotorcycle(UpdateMotorcycleRequestDto request) {
+        return this.motorcycleService.updateMotorcycle(request);
     }
 }

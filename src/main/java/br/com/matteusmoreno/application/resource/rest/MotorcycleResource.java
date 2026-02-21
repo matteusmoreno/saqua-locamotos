@@ -2,6 +2,7 @@ package br.com.matteusmoreno.application.resource.rest;
 
 import br.com.matteusmoreno.application.common.RequestParam;
 import br.com.matteusmoreno.domain.dto.MotorcycleResponseDto;
+import br.com.matteusmoreno.domain.dto.UpdateMotorcycleRequestDto;
 import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.controller.MotorcycleController;
 import br.com.matteusmoreno.domain.dto.CreateMotorcycleRequestDto;
@@ -51,5 +52,13 @@ public class MotorcycleResource {
         List<Motorcycle> motorcycles = this.motorcycleController.findAllAvailableMotorcycles();
 
         return Response.status(Response.Status.OK).entity(motorcycles.stream().map(MotorcycleResponseDto::new).toList()).build();
+    }
+
+    @PUT
+    @Path("/update")
+    public Response update(@Valid UpdateMotorcycleRequestDto request) {
+        Motorcycle motorcycle = this.motorcycleController.updateMotorcycle(request);
+
+        return Response.status(Response.Status.OK).entity(new MotorcycleResponseDto(motorcycle)).build();
     }
 }
