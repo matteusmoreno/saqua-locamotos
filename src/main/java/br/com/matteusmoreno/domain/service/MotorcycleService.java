@@ -78,6 +78,15 @@ public class MotorcycleService {
         return motorcycle;
     }
 
+    public void setMotorcycleAvailability(String motorcycleId, Boolean available) {
+        log.info("Setting motorcycle {} availability to {}", motorcycleId, available);
+        Motorcycle motorcycle = this.findMotorcycleById(motorcycleId);
+        motorcycle.setAvailable(available);
+
+        this.motorcycleRepository.update(motorcycle);
+        log.info("Set motorcycle {} availability to {}", motorcycleId, available);
+    }
+
     public void deleteMotorcycle(String motorcycleId) {
         log.info("Deleting motorcycle {}", motorcycleId);
         Motorcycle motorcycle = this.findMotorcycleById(motorcycleId);

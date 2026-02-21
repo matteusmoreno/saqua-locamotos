@@ -85,6 +85,9 @@ public class UserService {
         try {
             this.validateMotorcycleAvailability(motorcycle);
             user.getMotorcycles().add(motorcycle);
+            motorcycle.setAvailable(false);
+
+            this.motorcycleService.setMotorcycleAvailability(motorcycleId, false);
             this.userRepository.update(user);
             log.info("Motorcycle with ID: {} added to user with ID: {}", motorcycleId, userId);
         } catch (SaquaLocamotosException e) {
@@ -103,6 +106,8 @@ public class UserService {
         try {
             this.validateMotorcycleAssignedToUser(user, motorcycle);
             user.getMotorcycles().removeIf(m -> m.getMotorcycleId().equals(motorcycle.getMotorcycleId()));
+
+            this.motorcycleService.setMotorcycleAvailability(motorcycleId, true);
             this.userRepository.update(user);
             log.info("Motorcycle with ID: {} removed from user with ID: {}", motorcycleId, userId);
         } catch (SaquaLocamotosException e) {
