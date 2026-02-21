@@ -13,6 +13,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 import org.bson.types.ObjectId;
 
+import java.util.List;
+
 @Path("/motorcycles")
 public class MotorcycleResource {
 
@@ -36,5 +38,13 @@ public class MotorcycleResource {
         Motorcycle motorcycle = this.motorcycleController.findMotorcycleById(motorcycleId);
 
         return Response.status(Response.Status.OK).entity(new MotorcycleResponseDto(motorcycle)).build();
+    }
+
+    @GET
+    @Path("/all")
+    public Response findAll() {
+        List<Motorcycle> motorcycles = this.motorcycleController.findAllMotorcycles();
+
+        return Response.status(Response.Status.OK).entity(motorcycles.stream().map(MotorcycleResponseDto::new).toList()).build();
     }
 }

@@ -4,6 +4,9 @@ import br.com.matteusmoreno.domain.dto.CreateMotorcycleRequestDto;
 import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.service.MotorcycleService;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.NotFoundException;
+
+import java.util.List;
 
 @ApplicationScoped
 public class MotorcycleController {
@@ -20,5 +23,9 @@ public class MotorcycleController {
 
     public Motorcycle findMotorcycleById(String motorcycleId) {
         return this.motorcycleService.findMotorcycleById(motorcycleId);
+    }
+
+    public List<Motorcycle> findAllMotorcycles() {
+        return this.motorcycleService.findAllMotorcycles();
     }
 }

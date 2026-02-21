@@ -6,6 +6,8 @@ import br.com.matteusmoreno.domain.dto.CreateMotorcycleRequestDto;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @ApplicationScoped
 @Slf4j
 public class MotorcycleService {
@@ -44,6 +46,10 @@ public class MotorcycleService {
 
     public Motorcycle findMotorcycleById(String motorcycleId) {
         return this.motorcycleRepository.findMotorcycleById(motorcycleId);
+    }
+
+    public List<Motorcycle> findAllMotorcycles() {
+        return this.motorcycleRepository.listAll();
     }
 
 }
