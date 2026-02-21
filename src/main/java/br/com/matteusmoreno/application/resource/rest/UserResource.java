@@ -6,10 +6,7 @@ import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
 import br.com.matteusmoreno.domain.dto.response.UserResponseDto;
 import br.com.matteusmoreno.domain.entity.User;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
@@ -45,6 +42,13 @@ public class UserResource {
         List<User> customers = this.userController.findAllUsers();
 
         return Response.status(Response.Status.OK).entity(customers.stream().map(UserResponseDto::new)).build();
+    }
 
+    @PATCH
+    @Path("/{userId}/add-motorcycle/{motorcycleId}")
+    public Response addMotorcycle(@PathParam(RequestParam.USER_ID) String userId, @PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
+        User user = this.userController.addMotorcycle(userId, motorcycleId);
+
+        return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
     }
 }

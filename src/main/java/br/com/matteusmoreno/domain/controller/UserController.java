@@ -27,4 +27,8 @@ public class UserController {
     public List<User> findAllUsers() {
         return this.userService.findAllCustomers();
     }
+
+    public User addMotorcycle(String userId, String motorcycleId) {
+        return this.userService.addMotorcycle(userId, motorcycleId);
+    }
 }

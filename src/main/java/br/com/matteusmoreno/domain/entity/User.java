@@ -3,6 +3,8 @@ package br.com.matteusmoreno.domain.entity;
 import br.com.matteusmoreno.domain.constant.MaritalStatus;
 import br.com.matteusmoreno.domain.constant.UserRole;
 import br.com.matteusmoreno.domain.model.Address;
+import br.com.matteusmoreno.domain.model.ErrorInfo;
+import br.com.matteusmoreno.domain.model.ErrorInfo;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import lombok.*;
 import org.bson.BsonType;
@@ -35,6 +37,8 @@ public class User {
     private Address address;
     @Builder.Default
     private List<Motorcycle> motorcycles = new ArrayList<>();
+    @Builder.Default
+    private List<ErrorInfo> errors = new ArrayList<>();
     private String contractUrl;
     private String pictureUrl;
     private UserRole role;
