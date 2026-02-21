@@ -26,8 +26,7 @@ public class AddressResource {
             @QueryParam(RequestParam.NUMBER) String number,
             @QueryParam(RequestParam.COMPLEMENT) String complement) {
 
-        ViaCepRequestDto request = new ViaCepRequestDto(zipCode, number, complement);
-        Address address = this.addressController.getAddressByZipCode(request);
+        Address address = this.addressController.getAddressByZipCode(zipCode, number, complement);
 
         return Response.status(Response.Status.OK).entity(address).build();
     }

@@ -33,18 +33,18 @@ public class AddressService {
                 .build();
     }
 
-    public Address getAddressFromZipcode(ViaCepRequestDto request) {
-        log.info("Fetching address from ViaCEP for CEP: {}", request.zipCode());
+    public Address getAddressFromZipcode(String zipCode, String number, String complement) {
+        log.info("Fetching address from ViaCEP for CEP: {}", zipCode);
 
-        ViaCepResponseDto response = this.viaCepClient.getAddress(request.zipCode());
+        ViaCepResponseDto response = this.viaCepClient.getAddress(zipCode);
         return Address.builder()
                 .zipCode(response.getZipCode())
                 .street(response.getStreet())
                 .neighborhood(response.getNeighborhood())
                 .city(response.getCity())
                 .state(response.getState())
-                .number(request.number())
-                .complement(request.complement())
+                .number(number)
+                .complement(complement)
                 .build();
 
     }

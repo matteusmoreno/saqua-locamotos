@@ -14,7 +14,7 @@ public class AddressController {
         this.addressService = addressService;
     }
 
-    public Address getAddressByZipCode(ViaCepRequestDto request) {
-        return this.addressService.getAddressFromZipcode(request);
+    public Address getAddressByZipCode(String zipCode, String number, String complement) {
+        return this.addressService.getAddressFromZipcode(zipCode, number, complement);
     }
 }
