@@ -8,6 +8,7 @@ public class RequestParam {
     public static final String ZIP_CODE = "zipCode";
     public static final String NUMBER = "number";
     public static final String COMPLEMENT = "complement";
+    public static final String FILE = "file";
 
     private RequestParam(){}
 

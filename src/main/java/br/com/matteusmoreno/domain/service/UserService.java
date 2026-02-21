@@ -1,7 +1,9 @@
 package br.com.matteusmoreno.domain.service;
 
+import br.com.matteusmoreno.application.exception.ContractNotFoundException;
 import br.com.matteusmoreno.application.exception.MotorcycleNotAssignedToUserException;
 import br.com.matteusmoreno.application.exception.MotorcycleNotAvailableException;
+import br.com.matteusmoreno.application.exception.PictureNotFoundException;
 import br.com.matteusmoreno.application.exception.SaquaLocamotosException;
 import br.com.matteusmoreno.application.exception.UserAlreadyExistsException;
 import br.com.matteusmoreno.application.service.CloudinaryService;
@@ -86,16 +88,65 @@ public class UserService {
         User user = this.findUserById(userId);
 
         if (user.getPictureUrl() != null && !user.getPictureUrl().isBlank()) {
-            String oldPublicId = cloudinaryService.extractPublicId(user.getPictureUrl());
+            String oldPublicId = this.cloudinaryService.extractPublicId(user.getPictureUrl());
+            this.cloudinaryService.delete(oldPublicId);
+        }
+
+        String url = this.cloudinaryService.upload(fileBytes, user.getUserId(), CloudinaryFolder.USER_PICTURE);
+        user.setPictureUrl(url);
+        user.setUpdatedAt(LocalDateTime.now());
+        this.userRepository.update(user);
+
+        log.info("Picture uploaded for user: {}", userId);
+        return user;
+    }
+
+    public User uploadContract(String userId, byte[] fileBytes) {
+        User user = this.findUserById(userId);
+
+        if (user.getContractUrl() != null && !user.getContractUrl().isBlank()) {
+            String oldPublicId = cloudinaryService.extractPublicId(user.getContractUrl());
             cloudinaryService.delete(oldPublicId);
         }
 
-        String url = cloudinaryService.upload(fileBytes, user.getUserId(), CloudinaryFolder.USER_PICTURE);
-        user.setPictureUrl(url);
+        String url = cloudinaryService.upload(fileBytes, user.getUserId(), CloudinaryFolder.USER_CONTRACT);
+        user.setContractUrl(url);
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.update(user);
 
-        log.info("Picture uploaded for user: {}", userId);
+        log.info("Contract uploaded for user: {}", userId);
+        return user;
+    }
+
+    public User deletePicture(String userId) {
+        User user = this.findUserById(userId);
+
+        if (user.getPictureUrl() == null || user.getPictureUrl().isBlank()) {
+            throw new PictureNotFoundException();
+        }
+
+        cloudinaryService.delete(cloudinaryService.extractPublicId(user.getPictureUrl()));
+        user.setPictureUrl(null);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.update(user);
+
+        log.info("Picture deleted for user: {}", userId);
+        return user;
+    }
+
+    public User deleteContract(String userId) {
+        User user = this.findUserById(userId);
+
+        if (user.getContractUrl() == null || user.getContractUrl().isBlank()) {
+            throw new ContractNotFoundException();
+        }
+
+        cloudinaryService.delete(cloudinaryService.extractPublicId(user.getContractUrl()));
+        user.setContractUrl(null);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.update(user);
+
+        log.info("Contract deleted for user: {}", userId);
         return user;
     }
 

@@ -41,6 +41,18 @@ public class UserController {
         return this.userService.uploadPicture(userId, fileBytes);
     }
 
+    public User uploadContract(String userId, byte[] fileBytes) {
+        return this.userService.uploadContract(userId, fileBytes);
+    }
+
+    public User deletePicture(String userId) {
+        return this.userService.deletePicture(userId);
+    }
+
+    public User deleteContract(String userId) {
+        return this.userService.deleteContract(userId);
+    }
+
     public User updateUser(UpdateUserRequestDto request) {
         return this.userService.updateUser(request);
     }

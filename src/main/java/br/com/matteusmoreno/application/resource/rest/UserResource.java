@@ -7,6 +7,7 @@ import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
 import br.com.matteusmoreno.domain.dto.response.UserResponseDto;
 import br.com.matteusmoreno.domain.entity.User;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -77,9 +78,44 @@ public class UserResource {
     @POST
     @Path("/{userId}/upload-picture")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response uploadPicture(@PathParam(RequestParam.USER_ID) String userId, @RestForm("file") FileUpload file) throws IOException {
+    public Response uploadPicture(
+            @PathParam(RequestParam.USER_ID) String userId,
+            @RestForm(RequestParam.FILE) @NotNull(message = "File is required") FileUpload file) throws IOException {
+
         byte[] fileBytes = Files.readAllBytes(file.uploadedFile());
+        if (fileBytes.length == 0) return Response.status(Response.Status.BAD_REQUEST).entity("File must not be empty").build();
+
         User user = this.userController.uploadPicture(userId, fileBytes);
+        return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
+    }
+
+    @POST
+    @Path("/{userId}/upload-contract")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadContract(
+            @PathParam(RequestParam.USER_ID) String userId,
+            @RestForm(RequestParam.FILE) @NotNull(message = "File is required") FileUpload file) throws IOException {
+
+        byte[] fileBytes = Files.readAllBytes(file.uploadedFile());
+        if (fileBytes.length == 0) return Response.status(Response.Status.BAD_REQUEST).entity("File must not be empty").build();
+
+        User user = this.userController.uploadContract(userId, fileBytes);
+
+        return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
+    }
+
+    @DELETE
+    @Path("/{userId}/delete-picture")
+    public Response deletePicture(@PathParam(RequestParam.USER_ID) String userId) {
+        User user = this.userController.deletePicture(userId);
+
+        return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
+    }
+
+    @DELETE
+    @Path("/{userId}/delete-contract")
+    public Response deleteContract(@PathParam(RequestParam.USER_ID) String userId) {
+        User user = this.userController.deleteContract(userId);
 
         return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
     }
