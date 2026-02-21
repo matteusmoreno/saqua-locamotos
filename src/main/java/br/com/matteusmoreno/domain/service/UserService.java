@@ -1,6 +1,5 @@
 package br.com.matteusmoreno.domain.service;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
 import br.com.matteusmoreno.application.exception.UserAlreadyExistsException;
 import br.com.matteusmoreno.domain.constant.UserRole;
 import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
@@ -9,9 +8,9 @@ import br.com.matteusmoreno.domain.model.Address;
 import br.com.matteusmoreno.domain.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
-import org.jose4j.jwk.Use;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @ApplicationScoped
 @Slf4j
@@ -60,6 +59,11 @@ public class UserService {
     public User findUserById(String userId) {
         log.info("Finding user with ID: {}", userId);
         return this.userRepository.findUserById(userId);
+    }
+
+    public List<User> findAllCustomers() {
+        log.info("Finding all customers");
+        return this.userRepository.findAllCustomer();
     }
 
     protected void validateExistingEmailOrCpfOrRgOrPhone(String email, String cpf, String rg, String phone) {

@@ -5,6 +5,8 @@ import br.com.matteusmoreno.domain.entity.User;
 import br.com.matteusmoreno.domain.service.UserService;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import java.util.List;
+
 @ApplicationScoped
 public class UserController {
 
@@ -20,5 +22,9 @@ public class UserController {
 
     public User findUserById(String userId) {
         return this.userService.findUserById(userId);
+    }
+
+    public List<User> findAllUsers() {
+        return this.userService.findAllCustomers();
     }
 }

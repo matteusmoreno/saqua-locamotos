@@ -12,6 +12,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 
+import java.util.List;
+
 @Path("/users")
 public class UserResource {
 
@@ -34,6 +36,15 @@ public class UserResource {
     public Response findById(@PathParam(RequestParam.USER_ID) String userId) {
         User user = this.userController.findUserById(userId);
 
-        return Response.ok(new UserResponseDto(user)).build();
+        return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
+    }
+
+    @GET
+    @Path("/customers/all")
+    public Response findAllCustomers() {
+        List<User> customers = this.userController.findAllUsers();
+
+        return Response.status(Response.Status.OK).entity(customers.stream().map(UserResponseDto::new)).build();
+
     }
 }
