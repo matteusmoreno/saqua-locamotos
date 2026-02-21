@@ -1,5 +1,8 @@
 package br.com.matteusmoreno.domain.service;
 
+import br.com.matteusmoreno.application.exception.MotorcycleDocumentNotFoundException;
+import br.com.matteusmoreno.application.service.CloudinaryService;
+import br.com.matteusmoreno.domain.constant.CloudinaryFolder;
 import br.com.matteusmoreno.domain.dto.request.UpdateMotorcycleRequestDto;
 import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.repository.MotorcycleRepository;
@@ -14,9 +17,11 @@ import java.util.List;
 public class MotorcycleService {
 
     private final MotorcycleRepository motorcycleRepository;
+    private final CloudinaryService cloudinaryService;
 
-    public MotorcycleService(MotorcycleRepository motorcycleRepository) {
+    public MotorcycleService(MotorcycleRepository motorcycleRepository, CloudinaryService cloudinaryService) {
         this.motorcycleRepository = motorcycleRepository;
+        this.cloudinaryService = cloudinaryService;
     }
 
     public Motorcycle createMotorcycle(CreateMotorcycleRequestDto request) {
@@ -93,6 +98,37 @@ public class MotorcycleService {
 
         this.motorcycleRepository.delete(motorcycle);
         log.info("Deleted motorcycle {}", motorcycle);
+    }
+
+    public Motorcycle uploadDocument(String motorcycleId, byte[] fileBytes) {
+        Motorcycle motorcycle = this.findMotorcycleById(motorcycleId);
+
+        if (motorcycle.getDocumentUrl() != null && !motorcycle.getDocumentUrl().isBlank()) {
+            String oldPublicId = cloudinaryService.extractPublicId(motorcycle.getDocumentUrl());
+            cloudinaryService.delete(oldPublicId);
+        }
+
+        String url = cloudinaryService.upload(fileBytes, motorcycle.getMotorcycleId(), CloudinaryFolder.MOTORCYCLE_DOCUMENT);
+        motorcycle.setDocumentUrl(url);
+        motorcycleRepository.update(motorcycle);
+
+        log.info("Document uploaded for motorcycle: {}", motorcycleId);
+        return motorcycle;
+    }
+
+    public Motorcycle deleteDocument(String motorcycleId) {
+        Motorcycle motorcycle = this.findMotorcycleById(motorcycleId);
+
+        if (motorcycle.getDocumentUrl() == null || motorcycle.getDocumentUrl().isBlank()) {
+            throw new MotorcycleDocumentNotFoundException();
+        }
+
+        cloudinaryService.delete(cloudinaryService.extractPublicId(motorcycle.getDocumentUrl()));
+        motorcycle.setDocumentUrl(null);
+        motorcycleRepository.update(motorcycle);
+
+        log.info("Document deleted for motorcycle: {}", motorcycleId);
+        return motorcycle;
     }
 
 }

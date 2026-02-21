@@ -23,6 +23,7 @@ public class Motorcycle {
     private String year;
     private String color;
     private String chassis;
+    private String documentUrl;
     private Boolean available;
 
 }

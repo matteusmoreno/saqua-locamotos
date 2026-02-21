@@ -11,6 +11,7 @@ public record MotorcycleResponseDto(
         String year,
         String color,
         String chassis,
+        String documentUrl,
         Boolean available
 ) {
 
@@ -24,6 +25,7 @@ public record MotorcycleResponseDto(
                 motorcycle.getYear(),
                 motorcycle.getColor(),
                 motorcycle.getChassis(),
+                motorcycle.getDocumentUrl(),
                 motorcycle.getAvailable()
         );
     }

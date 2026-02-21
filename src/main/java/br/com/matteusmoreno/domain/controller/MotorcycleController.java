@@ -40,4 +40,12 @@ public class MotorcycleController {
     public void deleteMotorcycle(String motorcycleId) {
         this.motorcycleService.deleteMotorcycle(motorcycleId);
     }
+
+    public Motorcycle uploadDocument(String motorcycleId, byte[] fileBytes) {
+        return this.motorcycleService.uploadDocument(motorcycleId, fileBytes);
+    }
+
+    public Motorcycle deleteDocument(String motorcycleId) {
+        return this.motorcycleService.deleteDocument(motorcycleId);
+    }
 }
