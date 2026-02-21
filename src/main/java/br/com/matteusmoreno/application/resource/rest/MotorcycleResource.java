@@ -6,10 +6,7 @@ import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.controller.MotorcycleController;
 import br.com.matteusmoreno.domain.dto.CreateMotorcycleRequestDto;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import org.bson.types.ObjectId;
 
@@ -44,6 +41,14 @@ public class MotorcycleResource {
     @Path("/all")
     public Response findAll() {
         List<Motorcycle> motorcycles = this.motorcycleController.findAllMotorcycles();
+
+        return Response.status(Response.Status.OK).entity(motorcycles.stream().map(MotorcycleResponseDto::new).toList()).build();
+    }
+
+    @GET
+    @Path("/all/available")
+    public Response findAllAvailable() {
+        List<Motorcycle> motorcycles = this.motorcycleController.findAllAvailableMotorcycles();
 
         return Response.status(Response.Status.OK).entity(motorcycles.stream().map(MotorcycleResponseDto::new).toList()).build();
     }

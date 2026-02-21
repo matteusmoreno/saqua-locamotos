@@ -28,4 +28,8 @@ public class MotorcycleController {
     public List<Motorcycle> findAllMotorcycles() {
         return this.motorcycleService.findAllMotorcycles();
     }
+
+    public List<Motorcycle> findAllAvailableMotorcycles() {
+        return this.motorcycleService.findAllAvailableMotorcycles();
+    }
 }

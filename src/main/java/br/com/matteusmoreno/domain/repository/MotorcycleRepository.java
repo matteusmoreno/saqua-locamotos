@@ -6,6 +6,8 @@ import io.quarkus.mongodb.panache.PanacheMongoRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.bson.types.ObjectId;
 
+import java.util.List;
+
 @ApplicationScoped
 public class MotorcycleRepository implements PanacheMongoRepositoryBase<Motorcycle, String> {
 
@@ -25,5 +27,9 @@ public class MotorcycleRepository implements PanacheMongoRepositoryBase<Motorcyc
 
         return find("_id", new ObjectId(motorcycleId)).firstResultOptional()
                 .orElseThrow(MotorcycleNotFoundException::new);
+    }
+
+    public List<Motorcycle> findAllAvailableMotorcycles() {
+        return this.find("available", true).list();
     }
 }

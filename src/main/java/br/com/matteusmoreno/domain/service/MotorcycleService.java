@@ -4,6 +4,7 @@ import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.repository.MotorcycleRepository;
 import br.com.matteusmoreno.domain.dto.CreateMotorcycleRequestDto;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.PUT;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -50,6 +51,10 @@ public class MotorcycleService {
 
     public List<Motorcycle> findAllMotorcycles() {
         return this.motorcycleRepository.listAll();
+    }
+
+    public List<Motorcycle> findAllAvailableMotorcycles() {
+        return this.motorcycleRepository.findAllAvailableMotorcycles();
     }
 
 }
