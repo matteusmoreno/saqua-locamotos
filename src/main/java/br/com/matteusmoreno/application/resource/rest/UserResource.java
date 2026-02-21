@@ -51,4 +51,12 @@ public class UserResource {
 
         return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
     }
+
+    @PATCH
+    @Path("/{userId}/remove-motorcycle/{motorcycleId}")
+    public Response removeMotorcycle(@PathParam(RequestParam.USER_ID) String userId, @PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
+        User user = this.userController.removeMotorcycle(userId, motorcycleId);
+
+        return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
+    }
 }

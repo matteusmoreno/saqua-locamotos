@@ -31,4 +31,8 @@ public class UserController {
     public User addMotorcycle(String userId, String motorcycleId) {
         return this.userService.addMotorcycle(userId, motorcycleId);
     }
+
+    public User removeMotorcycle(String userId, String motorcycleId) {
+        return this.userService.removeMotorcycle(userId, motorcycleId);
+    }
 }

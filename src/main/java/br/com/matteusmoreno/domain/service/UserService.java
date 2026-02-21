@@ -1,5 +1,6 @@
 package br.com.matteusmoreno.domain.service;
 
+import br.com.matteusmoreno.application.exception.MotorcycleNotAssignedToUserException;
 import br.com.matteusmoreno.application.exception.MotorcycleNotAvailableException;
 import br.com.matteusmoreno.application.exception.SaquaLocamotosException;
 import br.com.matteusmoreno.application.exception.UserAlreadyExistsException;
@@ -94,10 +95,37 @@ public class UserService {
         return user;
     }
 
+    public User removeMotorcycle(String userId, String motorcycleId) {
+        log.info("Removing motorcycle with ID: {} from user with ID: {}", motorcycleId, userId);
+        User user = this.findUserById(userId);
+        Motorcycle motorcycle = this.motorcycleService.findMotorcycleById(motorcycleId);
+
+        try {
+            this.validateMotorcycleAssignedToUser(user, motorcycle);
+            user.getMotorcycles().removeIf(m -> m.getMotorcycleId().equals(motorcycle.getMotorcycleId()));
+            this.userRepository.update(user);
+            log.info("Motorcycle with ID: {} removed from user with ID: {}", motorcycleId, userId);
+        } catch (SaquaLocamotosException e) {
+            this.errorService.saveUserErrorInfo(user, e, uriInfo.getPath());
+            throw e;
+        }
+
+        return user;
+    }
+
     protected void validateMotorcycleAvailability(Motorcycle motorcycle) {
         log.info("Validating motorcycle availability for motorcycle with ID: {}", motorcycle.getMotorcycleId());
         if (!motorcycle.getAvailable()) {
             throw new MotorcycleNotAvailableException();
+        }
+    }
+
+    protected void validateMotorcycleAssignedToUser(User user, Motorcycle motorcycle) {
+        log.info("Validating motorcycle with ID: {} is assigned to user with ID: {}", motorcycle.getMotorcycleId(), user.getUserId());
+        boolean assigned = user.getMotorcycles().stream()
+                .anyMatch(m -> m.getMotorcycleId().equals(motorcycle.getMotorcycleId()));
+        if (!assigned) {
+            throw new MotorcycleNotAssignedToUserException();
         }
     }
 

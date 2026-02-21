@@ -80,3 +80,4 @@ Monitor your application's health using SmallRye Health
 
 por fazer:
 - implementar disable e enable para os motos
+- implementar o documento da moto
