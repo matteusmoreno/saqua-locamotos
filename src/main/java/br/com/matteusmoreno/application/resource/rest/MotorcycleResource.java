@@ -1,13 +1,17 @@
 package br.com.matteusmoreno.application.resource.rest;
 
+import br.com.matteusmoreno.application.common.RequestParam;
 import br.com.matteusmoreno.domain.dto.MotorcycleResponseDto;
 import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.controller.MotorcycleController;
 import br.com.matteusmoreno.domain.dto.CreateMotorcycleRequestDto;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
+import org.bson.types.ObjectId;
 
 @Path("/motorcycles")
 public class MotorcycleResource {
@@ -24,5 +28,13 @@ public class MotorcycleResource {
         Motorcycle motorcycle = this.motorcycleController.createMotorcycle(request);
 
         return  Response.status(Response.Status.CREATED).entity(new MotorcycleResponseDto(motorcycle)).build();
+    }
+
+    @GET
+    @Path("/{motorcycleId}")
+    public Response findById(@PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
+        Motorcycle motorcycle = this.motorcycleController.findMotorcycleById(motorcycleId);
+
+        return Response.status(Response.Status.OK).entity(new MotorcycleResponseDto(motorcycle)).build();
     }
 }

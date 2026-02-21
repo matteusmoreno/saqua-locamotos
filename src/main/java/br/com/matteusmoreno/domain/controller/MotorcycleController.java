@@ -17,4 +17,8 @@ public class MotorcycleController {
     public Motorcycle createMotorcycle(CreateMotorcycleRequestDto request) {
         return this.motorcycleService.createMotorcycle(request);
     }
+
+    public Motorcycle findMotorcycleById(String motorcycleId) {
+        return this.motorcycleService.findMotorcycleById(motorcycleId);
+    }
 }

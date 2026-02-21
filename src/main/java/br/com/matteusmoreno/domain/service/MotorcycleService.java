@@ -42,4 +42,8 @@ public class MotorcycleService {
         return motorcycle;
     }
 
+    public Motorcycle findMotorcycleById(String motorcycleId) {
+        return this.motorcycleRepository.findMotorcycleById(motorcycleId);
+    }
+
 }
