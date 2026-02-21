@@ -1,4 +1,5 @@
 package br.com.matteusmoreno.domain.dto.response;
 
-public class LoginResponseDto {
-}
+public record LoginResponseDto(
+        String token
+) {}

@@ -16,6 +16,7 @@ import br.com.matteusmoreno.domain.entity.User;
 import br.com.matteusmoreno.domain.model.Address;
 import br.com.matteusmoreno.domain.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.slf4j.Slf4j;
 
@@ -82,6 +83,11 @@ public class UserService {
     public List<User> findAllCustomers() {
         log.info("Finding all customers");
         return this.userRepository.findAllCustomer();
+    }
+
+    public User findUserByEmail(String email) {
+        log.info("Finding user with email: {}", email);
+        return this.userRepository.findUserByEmail(email);
     }
 
     public User uploadPicture(String userId, byte[] fileBytes) {

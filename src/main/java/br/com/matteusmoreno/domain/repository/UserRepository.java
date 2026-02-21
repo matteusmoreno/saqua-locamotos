@@ -22,4 +22,9 @@ public class UserRepository implements PanacheMongoRepositoryBase<User, String> 
     public List<User> findAllCustomer() {
         return this.find("role", UserRole.CUSTOMER).list();
     }
+
+    public User findUserByEmail(String email) {
+        return find("email", email).firstResultOptional()
+                .orElseThrow(UserNotFoundException::new);
+    }
 }
