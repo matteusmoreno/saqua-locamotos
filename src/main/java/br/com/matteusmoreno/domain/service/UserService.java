@@ -9,6 +9,7 @@ import br.com.matteusmoreno.domain.model.Address;
 import br.com.matteusmoreno.domain.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
+import org.jose4j.jwk.Use;
 
 import java.time.LocalDateTime;
 
@@ -54,6 +55,11 @@ public class UserService {
         log.info("Customer created with ID: {}", user.getUserId());
 
         return user;
+    }
+
+    public User findUserById(String userId) {
+        log.info("Finding user with ID: {}", userId);
+        return this.userRepository.findUserById(userId);
     }
 
     protected void validateExistingEmailOrCpfOrRgOrPhone(String email, String cpf, String rg, String phone) {

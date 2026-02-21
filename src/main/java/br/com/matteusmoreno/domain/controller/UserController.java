@@ -17,4 +17,8 @@ public class UserController {
     public User createUser(CreateUserRequestDto request) {
         return this.userService.createCustomer(request);
     }
+
+    public User findUserById(String userId) {
+        return this.userService.findUserById(userId);
+    }
 }
