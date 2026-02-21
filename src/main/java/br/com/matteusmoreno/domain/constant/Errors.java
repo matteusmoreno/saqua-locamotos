@@ -11,7 +11,10 @@ public enum Errors {
     USER_NOT_FOUND("User not found"),
     USER_ALREADY_EXISTS("User already exists"),
     PICTURE_NOT_FOUND("User does not have a picture"),
-    CONTRACT_NOT_FOUND("User does not have a contract");
+    CONTRACT_NOT_FOUND("Contract not found"),
+    CONTRACT_URL_NOT_FOUND("User does not have a contract"),
+    PAYMENT_NOT_FOUND("Payment not found"),
+    FINE_NOT_FOUND("Fine not found");
 
 
     private final String displayName;

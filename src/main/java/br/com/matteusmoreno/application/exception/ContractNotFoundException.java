@@ -12,4 +12,3 @@ public class ContractNotFoundException extends SaquaLocamotosException {
         super(DEFAULT_MESSAGE, STATUS_CODE, ERROR_CODE);
     }
 }
-

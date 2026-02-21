@@ -5,8 +5,6 @@ import br.com.matteusmoreno.domain.constant.UserRole;
 import br.com.matteusmoreno.domain.entity.User;
 import br.com.matteusmoreno.domain.model.Address;
 
-import java.util.List;
-
 public record UserResponseDto(
         String customerId,
         String name,
@@ -18,8 +16,6 @@ public record UserResponseDto(
         String occupation,
         MaritalStatus maritalStatus,
         Address address,
-        List<MotorcycleResponseDto> motorcycles,
-        String contractUrl,
         String pictureUrl,
         UserRole role,
         String createdAt,
@@ -38,8 +34,6 @@ public record UserResponseDto(
                 user.getOccupation(),
                 user.getMaritalStatus(),
                 user.getAddress(),
-                user.getMotorcycles().stream().map(MotorcycleResponseDto::new).toList(),
-                user.getContractUrl(),
                 user.getPictureUrl(),
                 user.getRole(),
                 user.getCreatedAt().toString(),

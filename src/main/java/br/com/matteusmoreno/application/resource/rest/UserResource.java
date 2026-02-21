@@ -1,10 +1,13 @@
 package br.com.matteusmoreno.application.resource.rest;
 
 import br.com.matteusmoreno.application.common.RequestParam;
+import br.com.matteusmoreno.domain.controller.ContractController;
 import br.com.matteusmoreno.domain.controller.UserController;
 import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
 import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
+import br.com.matteusmoreno.domain.dto.response.ContractResponseDto;
 import br.com.matteusmoreno.domain.dto.response.UserResponseDto;
+import br.com.matteusmoreno.domain.entity.Contract;
 import br.com.matteusmoreno.domain.entity.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -22,9 +25,11 @@ import java.util.List;
 public class UserResource {
 
     private final UserController userController;
+    private final ContractController contractController;
 
-    public UserResource(UserController userController) {
+    public UserResource(UserController userController, ContractController contractController) {
         this.userController = userController;
+        this.contractController = contractController;
     }
 
     @POST
@@ -44,27 +49,19 @@ public class UserResource {
     }
 
     @GET
+    @Path("/{userId}/contracts")
+    public Response findContractsByUserId(@PathParam(RequestParam.USER_ID) String userId) {
+        List<Contract> contracts = this.contractController.findContractsByUserId(userId);
+
+        return Response.status(Response.Status.OK).entity(contracts.stream().map(ContractResponseDto::new).toList()).build();
+    }
+
+    @GET
     @Path("/customers/all")
     public Response findAllCustomers() {
         List<User> customers = this.userController.findAllUsers();
 
         return Response.status(Response.Status.OK).entity(customers.stream().map(UserResponseDto::new)).build();
-    }
-
-    @PATCH
-    @Path("/{userId}/add-motorcycle/{motorcycleId}")
-    public Response addMotorcycle(@PathParam(RequestParam.USER_ID) String userId, @PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
-        User user = this.userController.addMotorcycle(userId, motorcycleId);
-
-        return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
-    }
-
-    @PATCH
-    @Path("/{userId}/remove-motorcycle/{motorcycleId}")
-    public Response removeMotorcycle(@PathParam(RequestParam.USER_ID) String userId, @PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
-        User user = this.userController.removeMotorcycle(userId, motorcycleId);
-
-        return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
     }
 
     @PUT
@@ -89,33 +86,10 @@ public class UserResource {
         return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
     }
 
-    @POST
-    @Path("/{userId}/upload-contract")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response uploadContract(
-            @PathParam(RequestParam.USER_ID) String userId,
-            @RestForm(RequestParam.FILE) @NotNull(message = "File is required") FileUpload file) throws IOException {
-
-        byte[] fileBytes = Files.readAllBytes(file.uploadedFile());
-        if (fileBytes.length == 0) return Response.status(Response.Status.BAD_REQUEST).entity("File must not be empty").build();
-
-        User user = this.userController.uploadContract(userId, fileBytes);
-
-        return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
-    }
-
     @DELETE
     @Path("/{userId}/delete-picture")
     public Response deletePicture(@PathParam(RequestParam.USER_ID) String userId) {
         User user = this.userController.deletePicture(userId);
-
-        return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
-    }
-
-    @DELETE
-    @Path("/{userId}/delete-contract")
-    public Response deleteContract(@PathParam(RequestParam.USER_ID) String userId) {
-        User user = this.userController.deleteContract(userId);
 
         return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
     }

@@ -1,8 +1,11 @@
 package br.com.matteusmoreno.application.resource.rest;
 
 import br.com.matteusmoreno.application.common.RequestParam;
+import br.com.matteusmoreno.domain.controller.ContractController;
+import br.com.matteusmoreno.domain.dto.response.ContractResponseDto;
 import br.com.matteusmoreno.domain.dto.response.MotorcycleResponseDto;
 import br.com.matteusmoreno.domain.dto.request.UpdateMotorcycleRequestDto;
+import br.com.matteusmoreno.domain.entity.Contract;
 import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.controller.MotorcycleController;
 import br.com.matteusmoreno.domain.dto.request.CreateMotorcycleRequestDto;
@@ -22,9 +25,11 @@ import java.util.List;
 public class MotorcycleResource {
 
     private final MotorcycleController motorcycleController;
+    private final ContractController contractController;
 
-    public MotorcycleResource(MotorcycleController motorcycleController) {
+    public MotorcycleResource(MotorcycleController motorcycleController, ContractController contractController) {
         this.motorcycleController = motorcycleController;
+        this.contractController = contractController;
     }
 
     @POST
@@ -41,6 +46,14 @@ public class MotorcycleResource {
         Motorcycle motorcycle = this.motorcycleController.findMotorcycleById(motorcycleId);
 
         return Response.status(Response.Status.OK).entity(new MotorcycleResponseDto(motorcycle)).build();
+    }
+
+    @GET
+    @Path("/{motorcycleId}/contracts")
+    public Response findContractsByMotorcycleId(@PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
+        List<Contract> contracts = this.contractController.findContractsByMotorcycleId(motorcycleId);
+
+        return Response.status(Response.Status.OK).entity(contracts.stream().map(ContractResponseDto::new).toList()).build();
     }
 
     @GET

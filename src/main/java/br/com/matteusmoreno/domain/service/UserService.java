@@ -1,22 +1,16 @@
 package br.com.matteusmoreno.domain.service;
 
-import br.com.matteusmoreno.application.exception.ContractNotFoundException;
-import br.com.matteusmoreno.application.exception.MotorcycleNotAssignedToUserException;
-import br.com.matteusmoreno.application.exception.MotorcycleNotAvailableException;
 import br.com.matteusmoreno.application.exception.PictureNotFoundException;
-import br.com.matteusmoreno.application.exception.SaquaLocamotosException;
 import br.com.matteusmoreno.application.exception.UserAlreadyExistsException;
 import br.com.matteusmoreno.application.service.CloudinaryService;
 import br.com.matteusmoreno.domain.constant.CloudinaryFolder;
 import br.com.matteusmoreno.domain.constant.UserRole;
 import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
 import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
-import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.entity.User;
 import br.com.matteusmoreno.domain.model.Address;
 import br.com.matteusmoreno.domain.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,16 +24,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final AddressService addressService;
     private final PasswordService passwordService;
-    private final MotorcycleService motorcycleService;
     private final ErrorService errorService;
     private final CloudinaryService cloudinaryService;
     private final UriInfo uriInfo;
 
-    public UserService(UserRepository userRepository, AddressService addressService, PasswordService passwordService, MotorcycleService motorcycleService, ErrorService errorService, CloudinaryService cloudinaryService, UriInfo uriInfo) {
+    public UserService(UserRepository userRepository, AddressService addressService, PasswordService passwordService, ErrorService errorService, CloudinaryService cloudinaryService, UriInfo uriInfo) {
         this.userRepository = userRepository;
         this.addressService = addressService;
         this.passwordService = passwordService;
-        this.motorcycleService = motorcycleService;
         this.errorService = errorService;
         this.cloudinaryService = cloudinaryService;
         this.uriInfo = uriInfo;
@@ -107,23 +99,6 @@ public class UserService {
         return user;
     }
 
-    public User uploadContract(String userId, byte[] fileBytes) {
-        User user = this.findUserById(userId);
-
-        if (user.getContractUrl() != null && !user.getContractUrl().isBlank()) {
-            String oldPublicId = cloudinaryService.extractPublicId(user.getContractUrl());
-            cloudinaryService.delete(oldPublicId);
-        }
-
-        String url = cloudinaryService.upload(fileBytes, user.getUserId(), CloudinaryFolder.USER_CONTRACT);
-        user.setContractUrl(url);
-        user.setUpdatedAt(LocalDateTime.now());
-        userRepository.update(user);
-
-        log.info("Contract uploaded for user: {}", userId);
-        return user;
-    }
-
     public User deletePicture(String userId) {
         User user = this.findUserById(userId);
 
@@ -137,63 +112,6 @@ public class UserService {
         userRepository.update(user);
 
         log.info("Picture deleted for user: {}", userId);
-        return user;
-    }
-
-    public User deleteContract(String userId) {
-        User user = this.findUserById(userId);
-
-        if (user.getContractUrl() == null || user.getContractUrl().isBlank()) {
-            throw new ContractNotFoundException();
-        }
-
-        cloudinaryService.delete(cloudinaryService.extractPublicId(user.getContractUrl()));
-        user.setContractUrl(null);
-        user.setUpdatedAt(LocalDateTime.now());
-        userRepository.update(user);
-
-        log.info("Contract deleted for user: {}", userId);
-        return user;
-    }
-
-    public User addMotorcycle(String userId, String motorcycleId) {
-        log.info("Adding motorcycle with ID: {} to user with ID: {}", motorcycleId, userId);
-        User user = this.findUserById(userId);
-        Motorcycle motorcycle = this.motorcycleService.findMotorcycleById(motorcycleId);
-
-        try {
-            this.validateMotorcycleAvailability(motorcycle);
-            user.getMotorcycles().add(motorcycle);
-            motorcycle.setAvailable(false);
-
-            this.motorcycleService.setMotorcycleAvailability(motorcycleId, false);
-            this.userRepository.update(user);
-            log.info("Motorcycle with ID: {} added to user with ID: {}", motorcycleId, userId);
-        } catch (SaquaLocamotosException e) {
-            this.errorService.saveUserErrorInfo(user, e, uriInfo.getPath());
-            throw e;
-        }
-
-        return user;
-    }
-
-    public User removeMotorcycle(String userId, String motorcycleId) {
-        log.info("Removing motorcycle with ID: {} from user with ID: {}", motorcycleId, userId);
-        User user = this.findUserById(userId);
-        Motorcycle motorcycle = this.motorcycleService.findMotorcycleById(motorcycleId);
-
-        try {
-            this.validateMotorcycleAssignedToUser(user, motorcycle);
-            user.getMotorcycles().removeIf(m -> m.getMotorcycleId().equals(motorcycle.getMotorcycleId()));
-
-            this.motorcycleService.setMotorcycleAvailability(motorcycleId, true);
-            this.userRepository.update(user);
-            log.info("Motorcycle with ID: {} removed from user with ID: {}", motorcycleId, userId);
-        } catch (SaquaLocamotosException e) {
-            this.errorService.saveUserErrorInfo(user, e, uriInfo.getPath());
-            throw e;
-        }
-
         return user;
     }
 
@@ -221,34 +139,12 @@ public class UserService {
         return user;
     }
 
-    protected void validateMotorcycleAvailability(Motorcycle motorcycle) {
-        log.info("Validating motorcycle availability for motorcycle with ID: {}", motorcycle.getMotorcycleId());
-        if (!motorcycle.getAvailable()) {
-            throw new MotorcycleNotAvailableException();
-        }
-    }
-
-    protected void validateMotorcycleAssignedToUser(User user, Motorcycle motorcycle) {
-        log.info("Validating motorcycle with ID: {} is assigned to user with ID: {}", motorcycle.getMotorcycleId(), user.getUserId());
-        boolean assigned = user.getMotorcycles().stream().anyMatch(m -> m.getMotorcycleId().equals(motorcycle.getMotorcycleId()));
-        if (!assigned) {
-            throw new MotorcycleNotAssignedToUserException();
-        }
-    }
 
     protected void validateExistingEmailOrCpfOrRgOrPhone(String email, String cpf, String rg, String phone) {
         log.info("Validating existing email or cpf or RG or Phone number");
-        if (this.userRepository.find("email", email).firstResult() != null) {
-            throw new UserAlreadyExistsException("Email");
-        }
-        if (this.userRepository.find("cpf", cpf).firstResult() != null) {
-            throw new UserAlreadyExistsException("CPF");
-        }
-        if (this.userRepository.find("rg", rg).firstResult() != null) {
-            throw new UserAlreadyExistsException("RG");
-        }
-        if (this.userRepository.find("phone", phone).firstResult() != null) {
-            throw new UserAlreadyExistsException("Phone");
-        }
+        if (this.userRepository.find("email", email).firstResult() != null) throw new UserAlreadyExistsException("Email");
+        if (this.userRepository.find("cpf", cpf).firstResult() != null) throw new UserAlreadyExistsException("CPF");
+        if (this.userRepository.find("rg", rg).firstResult() != null) throw new UserAlreadyExistsException("RG");
+        if (this.userRepository.find("phone", phone).firstResult() != null) throw new UserAlreadyExistsException("Phone");
     }
 }

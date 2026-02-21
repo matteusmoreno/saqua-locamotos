@@ -1,6 +1,7 @@
 package br.com.matteusmoreno.domain.service;
 
 import br.com.matteusmoreno.application.exception.MotorcycleDocumentNotFoundException;
+import br.com.matteusmoreno.application.exception.MotorcycleNotAvailableException;
 import br.com.matteusmoreno.application.service.CloudinaryService;
 import br.com.matteusmoreno.domain.constant.CloudinaryFolder;
 import br.com.matteusmoreno.domain.dto.request.UpdateMotorcycleRequestDto;
@@ -82,6 +83,13 @@ public class MotorcycleService {
         this.motorcycleRepository.update(motorcycle);
 
         return motorcycle;
+    }
+
+    public void validateMotorcycleAvailability(Motorcycle motorcycle) {
+        log.info("Validating availability for motorcycle: {}", motorcycle.getMotorcycleId());
+        if (!motorcycle.getAvailable()) {
+            throw new MotorcycleNotAvailableException();
+        }
     }
 
     public void setMotorcycleAvailability(String motorcycleId, Boolean available) {

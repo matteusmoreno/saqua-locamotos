@@ -35,10 +35,7 @@ public class User {
     private MaritalStatus maritalStatus;
     private Address address;
     @Builder.Default
-    private List<Motorcycle> motorcycles = new ArrayList<>();
-    @Builder.Default
     private List<ErrorInfo> errors = new ArrayList<>();
-    private String contractUrl;
     private String pictureUrl;
     private UserRole role;
     private LocalDateTime createdAt;
