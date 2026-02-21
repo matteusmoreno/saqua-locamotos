@@ -12,7 +12,8 @@ public record MotorcycleResponseDto(
         String color,
         String chassis,
         String documentUrl,
-        Boolean available
+        Boolean available,
+        Boolean active
 ) {
 
     public MotorcycleResponseDto(Motorcycle motorcycle) {
@@ -26,7 +27,8 @@ public record MotorcycleResponseDto(
                 motorcycle.getColor(),
                 motorcycle.getChassis(),
                 motorcycle.getDocumentUrl(),
-                motorcycle.getAvailable()
+                motorcycle.getAvailable(),
+                motorcycle.getActive()
         );
     }
 }

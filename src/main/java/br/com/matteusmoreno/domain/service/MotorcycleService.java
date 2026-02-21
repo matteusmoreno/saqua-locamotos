@@ -92,12 +92,27 @@ public class MotorcycleService {
         log.info("Set motorcycle {} availability to {}", motorcycleId, available);
     }
 
-    public void deleteMotorcycle(String motorcycleId) {
-        log.info("Deleting motorcycle {}", motorcycleId);
+    public Motorcycle disableMotorcycle(String motorcycleId) {
+        log.info("Disabling motorcycle {}", motorcycleId);
         Motorcycle motorcycle = this.findMotorcycleById(motorcycleId);
 
-        this.motorcycleRepository.delete(motorcycle);
-        log.info("Deleted motorcycle {}", motorcycle);
+        motorcycle.setActive(false);
+        motorcycle.setAvailable(false);
+        this.motorcycleRepository.update(motorcycle);
+
+        log.info("Motorcycle {} disabled", motorcycleId);
+        return motorcycle;
+    }
+
+    public Motorcycle enableMotorcycle(String motorcycleId) {
+        log.info("Enabling motorcycle {}", motorcycleId);
+        Motorcycle motorcycle = this.findMotorcycleById(motorcycleId);
+
+        motorcycle.setActive(true);
+        this.motorcycleRepository.update(motorcycle);
+
+        log.info("Motorcycle {} enabled", motorcycleId);
+        return motorcycle;
     }
 
     public Motorcycle uploadDocument(String motorcycleId, byte[] fileBytes) {

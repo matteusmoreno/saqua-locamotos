@@ -37,8 +37,12 @@ public class MotorcycleController {
         return this.motorcycleService.updateMotorcycle(request);
     }
 
-    public void deleteMotorcycle(String motorcycleId) {
-        this.motorcycleService.deleteMotorcycle(motorcycleId);
+    public Motorcycle disableMotorcycle(String motorcycleId) {
+        return this.motorcycleService.disableMotorcycle(motorcycleId);
+    }
+
+    public Motorcycle enableMotorcycle(String motorcycleId) {
+        return this.motorcycleService.enableMotorcycle(motorcycleId);
     }
 
     public Motorcycle uploadDocument(String motorcycleId, byte[] fileBytes) {

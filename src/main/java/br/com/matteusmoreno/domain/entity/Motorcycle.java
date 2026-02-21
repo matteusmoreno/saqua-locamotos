@@ -25,5 +25,7 @@ public class Motorcycle {
     private String chassis;
     private String documentUrl;
     private Boolean available;
+    @Builder.Default
+    private Boolean active = true;
 
 }

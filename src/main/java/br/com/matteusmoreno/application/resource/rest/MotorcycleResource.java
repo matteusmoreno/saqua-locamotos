@@ -67,12 +67,20 @@ public class MotorcycleResource {
         return Response.status(Response.Status.OK).entity(new MotorcycleResponseDto(motorcycle)).build();
     }
 
-    @DELETE
-    @Path("/delete/{motorcycleId}")
-    public Response delete(@PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
-        this.motorcycleController.deleteMotorcycle(motorcycleId);
+    @PATCH
+    @Path("/{motorcycleId}/disable")
+    public Response disable(@PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
+        Motorcycle motorcycle = this.motorcycleController.disableMotorcycle(motorcycleId);
 
-        return Response.status(Response.Status.NO_CONTENT).build();
+        return Response.status(Response.Status.OK).entity(new MotorcycleResponseDto(motorcycle)).build();
+    }
+
+    @PATCH
+    @Path("/{motorcycleId}/enable")
+    public Response enable(@PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
+        Motorcycle motorcycle = this.motorcycleController.enableMotorcycle(motorcycleId);
+
+        return Response.status(Response.Status.OK).entity(new MotorcycleResponseDto(motorcycle)).build();
     }
 
     @POST

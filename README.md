@@ -79,5 +79,4 @@ Monitor your application's health using SmallRye Health
 [Related guide section...](https://quarkus.io/guides/smallrye-health)
 
 por fazer:
-- implementar disable e enable para os motos
-- implementar o documento da moto
+- implementar autenticação JWT
