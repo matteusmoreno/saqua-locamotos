@@ -87,7 +87,10 @@ public class MotorcycleService {
 
     public void validateMotorcycleAvailability(Motorcycle motorcycle) {
         log.info("Validating availability for motorcycle: {}", motorcycle.getMotorcycleId());
-        if (!motorcycle.getAvailable()) {
+        if (Boolean.FALSE.equals(motorcycle.getActive())) {
+            throw new MotorcycleNotAvailableException();
+        }
+        if (Boolean.FALSE.equals(motorcycle.getAvailable())) {
             throw new MotorcycleNotAvailableException();
         }
     }

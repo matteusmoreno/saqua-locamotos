@@ -65,9 +65,8 @@ public class ContractService {
         } else {
             // FIFTEEN_DAYS - full payment upfront
             endDate = startDate.plusDays(15);
-            BigDecimal totalUpfront = request.weeklyAmount().multiply(BigDecimal.valueOf(2));
             payments.add(Payment.builder()
-                    .amount(totalUpfront)
+                    .amount(request.weeklyAmount())
                     .dueDate(startDate)
                     .status(PaymentStatus.PENDING)
                     .description("Full payment - 15 days rental")
@@ -131,6 +130,19 @@ public class ContractService {
         payment.setStatus(PaymentStatus.PAID);
         payment.setPaidDate(LocalDate.now());
         payment.setMethod(request.method());
+
+        // if deposit payment description, mark deposit as paid
+        if (Boolean.FALSE.equals(contract.getDepositPaid()) && payment.getDescription() != null
+                && payment.getDescription().toLowerCase().contains("deposit")) {
+            contract.setDepositPaid(true);
+        }
+
+        // if all payments are PAID and no unpaid fines, mark contract as ACTIVE
+        boolean allPaymentsPaid = contract.getPayments().stream().allMatch(p -> p.getStatus() == PaymentStatus.PAID);
+        boolean hasUnpaidFines = contract.getFines().stream().anyMatch(f -> Boolean.FALSE.equals(f.getPaid()));
+        if (allPaymentsPaid && !hasUnpaidFines) {
+            contract.setStatus(ContractStatus.ACTIVE);
+        }
 
         contract.setUpdatedAt(LocalDateTime.now());
         contractRepository.update(contract);
@@ -200,7 +212,7 @@ public class ContractService {
             cloudinaryService.delete(cloudinaryService.extractPublicId(contract.getContractUrl()));
         }
 
-        String url = cloudinaryService.upload(fileBytes, contract.getContractId(), CloudinaryFolder.USER_CONTRACT);
+        String url = cloudinaryService.upload(fileBytes, contract.getContractId(), CloudinaryFolder.CONTRACT_FILE);
         contract.setContractUrl(url);
         contract.setUpdatedAt(LocalDateTime.now());
         contractRepository.update(contract);

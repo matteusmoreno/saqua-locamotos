@@ -6,13 +6,11 @@ import lombok.Getter;
 public enum Errors {
     MOTORCYCLE_NOT_FOUND("Motorcycle not found"),
     MOTORCYCLE_NOT_AVAILABLE("Motorcycle not available"),
-    MOTORCYCLE_NOT_ASSIGNED_TO_USER("Motorcycle not assigned to user"),
     MOTORCYCLE_DOCUMENT_NOT_FOUND("Motorcycle does not have a document"),
     USER_NOT_FOUND("User not found"),
     USER_ALREADY_EXISTS("User already exists"),
     PICTURE_NOT_FOUND("User does not have a picture"),
     CONTRACT_NOT_FOUND("Contract not found"),
-    CONTRACT_URL_NOT_FOUND("User does not have a contract"),
     PAYMENT_NOT_FOUND("Payment not found"),
     FINE_NOT_FOUND("Fine not found");
 
