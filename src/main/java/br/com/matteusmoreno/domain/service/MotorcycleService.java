@@ -42,6 +42,7 @@ public class MotorcycleService {
                 .color(request.color().toUpperCase())
                 .chassis(request.chassis().toUpperCase())
                 .available(request.available())
+                .active(true)
                 .build();
 
         this.motorcycleRepository.persist(motorcycle);
