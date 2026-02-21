@@ -1,4 +1,4 @@
-package br.com.matteusmoreno.domain.dto;
+package br.com.matteusmoreno.domain.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

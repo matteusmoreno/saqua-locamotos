@@ -1,4 +1,4 @@
-package br.com.matteusmoreno.domain.dto;
+package br.com.matteusmoreno.domain.dto.response;
 
 import br.com.matteusmoreno.domain.entity.Motorcycle;
 

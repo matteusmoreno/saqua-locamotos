@@ -1,9 +1,9 @@
 package br.com.matteusmoreno.domain.service;
 
-import br.com.matteusmoreno.domain.dto.UpdateMotorcycleRequestDto;
+import br.com.matteusmoreno.domain.dto.request.UpdateMotorcycleRequestDto;
 import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.repository.MotorcycleRepository;
-import br.com.matteusmoreno.domain.dto.CreateMotorcycleRequestDto;
+import br.com.matteusmoreno.domain.dto.request.CreateMotorcycleRequestDto;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
 

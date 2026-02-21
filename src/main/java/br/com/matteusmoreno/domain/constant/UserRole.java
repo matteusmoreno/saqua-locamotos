@@ -3,15 +3,13 @@ package br.com.matteusmoreno.domain.constant;
 import lombok.Getter;
 
 @Getter
-public enum Errors {
-    MOTORCYCLE_NOT_FOUND("Motorcycle not found"),
-    USER_ALREADY_EXISTS("User already exists");
-
+public enum UserRole {
+    ADMIN("Admin"),
+    CUSTOMER("Customer");
 
     private final String displayName;
 
-    Errors(String displayName) {
+    UserRole(String displayName) {
         this.displayName = displayName;
     }
-
 }

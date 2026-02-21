@@ -3,7 +3,7 @@ package br.com.matteusmoreno.domain.service;
 import br.com.matteusmoreno.application.client.ViaCepClient;
 import br.com.matteusmoreno.application.client.ViaCepRequestDto;
 import br.com.matteusmoreno.application.client.ViaCepResponseDto;
-import br.com.matteusmoreno.domain.dto.CreateAddressRequestDto;
+import br.com.matteusmoreno.domain.dto.request.CreateAddressRequestDto;
 import br.com.matteusmoreno.domain.model.Address;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;

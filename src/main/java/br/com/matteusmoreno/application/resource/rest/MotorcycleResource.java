@@ -1,11 +1,11 @@
 package br.com.matteusmoreno.application.resource.rest;
 
 import br.com.matteusmoreno.application.common.RequestParam;
-import br.com.matteusmoreno.domain.dto.MotorcycleResponseDto;
-import br.com.matteusmoreno.domain.dto.UpdateMotorcycleRequestDto;
+import br.com.matteusmoreno.domain.dto.response.MotorcycleResponseDto;
+import br.com.matteusmoreno.domain.dto.request.UpdateMotorcycleRequestDto;
 import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.controller.MotorcycleController;
-import br.com.matteusmoreno.domain.dto.CreateMotorcycleRequestDto;
+import br.com.matteusmoreno.domain.dto.request.CreateMotorcycleRequestDto;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
