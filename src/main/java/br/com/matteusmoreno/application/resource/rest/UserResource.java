@@ -3,6 +3,7 @@ package br.com.matteusmoreno.application.resource.rest;
 import br.com.matteusmoreno.application.common.RequestParam;
 import br.com.matteusmoreno.domain.controller.UserController;
 import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
+import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
 import br.com.matteusmoreno.domain.dto.response.UserResponseDto;
 import br.com.matteusmoreno.domain.entity.User;
 import jakarta.validation.Valid;
@@ -56,6 +57,14 @@ public class UserResource {
     @Path("/{userId}/remove-motorcycle/{motorcycleId}")
     public Response removeMotorcycle(@PathParam(RequestParam.USER_ID) String userId, @PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
         User user = this.userController.removeMotorcycle(userId, motorcycleId);
+
+        return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
+    }
+
+    @PUT
+    @Path("/update")
+    public Response update(@Valid UpdateUserRequestDto request) {
+        User user = this.userController.updateUser(request);
 
         return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
     }

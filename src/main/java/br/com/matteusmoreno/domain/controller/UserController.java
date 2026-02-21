@@ -1,6 +1,7 @@
 package br.com.matteusmoreno.domain.controller;
 
 import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
+import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
 import br.com.matteusmoreno.domain.entity.User;
 import br.com.matteusmoreno.domain.service.UserService;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -34,5 +35,9 @@ public class UserController {
 
     public User removeMotorcycle(String userId, String motorcycleId) {
         return this.userService.removeMotorcycle(userId, motorcycleId);
+    }
+
+    public User updateUser(UpdateUserRequestDto request) {
+        return this.userService.updateUser(request);
     }
 }

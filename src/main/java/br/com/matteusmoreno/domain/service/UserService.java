@@ -6,6 +6,7 @@ import br.com.matteusmoreno.application.exception.SaquaLocamotosException;
 import br.com.matteusmoreno.application.exception.UserAlreadyExistsException;
 import br.com.matteusmoreno.domain.constant.UserRole;
 import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
+import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
 import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.entity.User;
 import br.com.matteusmoreno.domain.model.Address;
@@ -114,6 +115,30 @@ public class UserService {
             this.errorService.saveUserErrorInfo(user, e, uriInfo.getPath());
             throw e;
         }
+
+        return user;
+    }
+
+    public User updateUser(UpdateUserRequestDto request) {
+        log.info("Updating user with ID: {}", request.userId());
+        User user = this.findUserById(request.userId());
+
+        if (request.name() != null) user.setName(request.name());
+        if (request.email() != null) user.setEmail(request.email());
+        if (request.phone() != null) user.setPhone(request.phone());
+        if (request.cpf() != null) user.setCpf(request.cpf());
+        if (request.rg() != null) user.setRg(request.rg());
+        if (request.ocupation() != null) user.setOccupation(request.ocupation());
+        if (request.maritalStatus() != null) user.setMaritalStatus(request.maritalStatus());
+        if (request.address() != null) {
+            Address address = this.addressService.getAddress(request.address());
+            user.setAddress(address);
+        }
+
+        user.setUpdatedAt(LocalDateTime.now());
+
+        this.userRepository.update(user);
+        log.info("User with ID: {} updated", request.userId());
 
         return user;
     }
