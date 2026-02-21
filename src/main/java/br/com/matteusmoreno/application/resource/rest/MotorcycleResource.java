@@ -9,7 +9,6 @@ import br.com.matteusmoreno.domain.dto.CreateMotorcycleRequestDto;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
-import org.bson.types.ObjectId;
 
 import java.util.List;
 
@@ -60,5 +59,13 @@ public class MotorcycleResource {
         Motorcycle motorcycle = this.motorcycleController.updateMotorcycle(request);
 
         return Response.status(Response.Status.OK).entity(new MotorcycleResponseDto(motorcycle)).build();
+    }
+
+    @DELETE
+    @Path("/delete/{motorcycleId}")
+    public Response delete(@PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
+        this.motorcycleController.deleteMotorcycle(motorcycleId);
+
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 }

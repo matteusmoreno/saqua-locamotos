@@ -5,7 +5,6 @@ import br.com.matteusmoreno.domain.dto.UpdateMotorcycleRequestDto;
 import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.service.MotorcycleService;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.NotFoundException;
 
 import java.util.List;
 
@@ -34,7 +33,11 @@ public class MotorcycleController {
         return this.motorcycleService.findAllAvailableMotorcycles();
     }
 
-    public  Motorcycle updateMotorcycle(UpdateMotorcycleRequestDto request) {
+    public Motorcycle updateMotorcycle(UpdateMotorcycleRequestDto request) {
         return this.motorcycleService.updateMotorcycle(request);
+    }
+
+    public void deleteMotorcycle(String motorcycleId) {
+        this.motorcycleService.deleteMotorcycle(motorcycleId);
     }
 }

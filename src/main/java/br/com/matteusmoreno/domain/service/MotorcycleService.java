@@ -5,7 +5,6 @@ import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.repository.MotorcycleRepository;
 import br.com.matteusmoreno.domain.dto.CreateMotorcycleRequestDto;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.PUT;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -77,6 +76,14 @@ public class MotorcycleService {
         this.motorcycleRepository.update(motorcycle);
 
         return motorcycle;
+    }
+
+    public void deleteMotorcycle(String motorcycleId) {
+        log.info("Deleting motorcycle {}", motorcycleId);
+        Motorcycle motorcycle = this.findMotorcycleById(motorcycleId);
+
+        this.motorcycleRepository.delete(motorcycle);
+        log.info("Deleted motorcycle {}", motorcycle);
     }
 
 }
