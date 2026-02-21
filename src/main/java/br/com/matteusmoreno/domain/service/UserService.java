@@ -4,6 +4,8 @@ import br.com.matteusmoreno.application.exception.MotorcycleNotAssignedToUserExc
 import br.com.matteusmoreno.application.exception.MotorcycleNotAvailableException;
 import br.com.matteusmoreno.application.exception.SaquaLocamotosException;
 import br.com.matteusmoreno.application.exception.UserAlreadyExistsException;
+import br.com.matteusmoreno.application.service.CloudinaryService;
+import br.com.matteusmoreno.domain.constant.CloudinaryFolder;
 import br.com.matteusmoreno.domain.constant.UserRole;
 import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
 import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
@@ -27,14 +29,16 @@ public class UserService {
     private final PasswordService passwordService;
     private final MotorcycleService motorcycleService;
     private final ErrorService errorService;
+    private final CloudinaryService cloudinaryService;
     private final UriInfo uriInfo;
 
-    public UserService(UserRepository userRepository, AddressService addressService, PasswordService passwordService, MotorcycleService motorcycleService, ErrorService errorService, UriInfo uriInfo) {
+    public UserService(UserRepository userRepository, AddressService addressService, PasswordService passwordService, MotorcycleService motorcycleService, ErrorService errorService, CloudinaryService cloudinaryService, UriInfo uriInfo) {
         this.userRepository = userRepository;
         this.addressService = addressService;
         this.passwordService = passwordService;
         this.motorcycleService = motorcycleService;
         this.errorService = errorService;
+        this.cloudinaryService = cloudinaryService;
         this.uriInfo = uriInfo;
     }
 
@@ -76,6 +80,23 @@ public class UserService {
     public List<User> findAllCustomers() {
         log.info("Finding all customers");
         return this.userRepository.findAllCustomer();
+    }
+
+    public User uploadPicture(String userId, byte[] fileBytes) {
+        User user = this.findUserById(userId);
+
+        if (user.getPictureUrl() != null && !user.getPictureUrl().isBlank()) {
+            String oldPublicId = cloudinaryService.extractPublicId(user.getPictureUrl());
+            cloudinaryService.delete(oldPublicId);
+        }
+
+        String url = cloudinaryService.upload(fileBytes, user.getUserId(), CloudinaryFolder.USER_PICTURE);
+        user.setPictureUrl(url);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.update(user);
+
+        log.info("Picture uploaded for user: {}", userId);
+        return user;
     }
 
     public User addMotorcycle(String userId, String motorcycleId) {
@@ -128,7 +149,7 @@ public class UserService {
         if (request.phone() != null) user.setPhone(request.phone());
         if (request.cpf() != null) user.setCpf(request.cpf());
         if (request.rg() != null) user.setRg(request.rg());
-        if (request.ocupation() != null) user.setOccupation(request.ocupation());
+        if (request.occupation() != null) user.setOccupation(request.occupation());
         if (request.maritalStatus() != null) user.setMaritalStatus(request.maritalStatus());
         if (request.address() != null) {
             Address address = this.addressService.getAddress(request.address());
@@ -152,8 +173,7 @@ public class UserService {
 
     protected void validateMotorcycleAssignedToUser(User user, Motorcycle motorcycle) {
         log.info("Validating motorcycle with ID: {} is assigned to user with ID: {}", motorcycle.getMotorcycleId(), user.getUserId());
-        boolean assigned = user.getMotorcycles().stream()
-                .anyMatch(m -> m.getMotorcycleId().equals(motorcycle.getMotorcycleId()));
+        boolean assigned = user.getMotorcycles().stream().anyMatch(m -> m.getMotorcycleId().equals(motorcycle.getMotorcycleId()));
         if (!assigned) {
             throw new MotorcycleNotAssignedToUserException();
         }

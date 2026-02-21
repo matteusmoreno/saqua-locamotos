@@ -11,7 +11,7 @@ public record UpdateUserRequestDto(
         String phone,
         String cpf,
         String rg,
-        String ocupation,
+        String occupation,
         MaritalStatus maritalStatus,
         CreateAddressRequestDto address
         ) {

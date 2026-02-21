@@ -4,7 +4,6 @@ import br.com.matteusmoreno.domain.constant.MaritalStatus;
 import br.com.matteusmoreno.domain.constant.UserRole;
 import br.com.matteusmoreno.domain.model.Address;
 import br.com.matteusmoreno.domain.model.ErrorInfo;
-import br.com.matteusmoreno.domain.model.ErrorInfo;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import lombok.*;
 import org.bson.BsonType;

@@ -37,6 +37,10 @@ public class UserController {
         return this.userService.removeMotorcycle(userId, motorcycleId);
     }
 
+    public User uploadPicture(String userId, byte[] fileBytes) {
+        return this.userService.uploadPicture(userId, fileBytes);
+    }
+
     public User updateUser(UpdateUserRequestDto request) {
         return this.userService.updateUser(request);
     }

@@ -8,8 +8,13 @@ import br.com.matteusmoreno.domain.dto.response.UserResponseDto;
 import br.com.matteusmoreno.domain.entity.User;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.jboss.resteasy.reactive.RestForm;
+import org.jboss.resteasy.reactive.multipart.FileUpload;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 
 @Path("/users")
@@ -65,6 +70,16 @@ public class UserResource {
     @Path("/update")
     public Response update(@Valid UpdateUserRequestDto request) {
         User user = this.userController.updateUser(request);
+
+        return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
+    }
+
+    @POST
+    @Path("/{userId}/upload-picture")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadPicture(@PathParam(RequestParam.USER_ID) String userId, @RestForm("file") FileUpload file) throws IOException {
+        byte[] fileBytes = Files.readAllBytes(file.uploadedFile());
+        User user = this.userController.uploadPicture(userId, fileBytes);
 
         return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
     }
