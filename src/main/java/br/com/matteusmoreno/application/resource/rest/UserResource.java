@@ -9,6 +9,7 @@ import br.com.matteusmoreno.domain.dto.response.ContractResponseDto;
 import br.com.matteusmoreno.domain.dto.response.UserResponseDto;
 import br.com.matteusmoreno.domain.entity.Contract;
 import br.com.matteusmoreno.domain.entity.User;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
@@ -34,6 +35,7 @@ public class UserResource {
 
     @POST
     @Path("/customer/create")
+    @RolesAllowed("ADMIN")
     public Response create(@Valid CreateUserRequestDto request) {
         User user = this.userController.createUser(request);
 
@@ -42,6 +44,7 @@ public class UserResource {
 
     @GET
     @Path("/{userId}")
+    @RolesAllowed({"ADMIN", "CUSTOMER"})
     public Response findById(@PathParam(RequestParam.USER_ID) String userId) {
         User user = this.userController.findUserById(userId);
 
@@ -50,6 +53,7 @@ public class UserResource {
 
     @GET
     @Path("/{userId}/contracts")
+    @RolesAllowed({"ADMIN", "CUSTOMER"})
     public Response findContractsByUserId(@PathParam(RequestParam.USER_ID) String userId) {
         List<Contract> contracts = this.contractController.findContractsByUserId(userId);
 
@@ -58,6 +62,7 @@ public class UserResource {
 
     @GET
     @Path("/customers/all")
+    @RolesAllowed("ADMIN")
     public Response findAllCustomers() {
         List<User> customers = this.userController.findAllUsers();
 
@@ -66,6 +71,7 @@ public class UserResource {
 
     @PUT
     @Path("/update")
+    @RolesAllowed("ADMIN")
     public Response update(@Valid UpdateUserRequestDto request) {
         User user = this.userController.updateUser(request);
 
@@ -74,6 +80,7 @@ public class UserResource {
 
     @POST
     @Path("/{userId}/upload-picture")
+    @RolesAllowed("ADMIN")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response uploadPicture(
             @PathParam(RequestParam.USER_ID) String userId,
@@ -88,6 +95,7 @@ public class UserResource {
 
     @DELETE
     @Path("/{userId}/delete-picture")
+    @RolesAllowed("ADMIN")
     public Response deletePicture(@PathParam(RequestParam.USER_ID) String userId) {
         User user = this.userController.deletePicture(userId);
 

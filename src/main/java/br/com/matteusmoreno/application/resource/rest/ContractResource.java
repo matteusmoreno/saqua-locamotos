@@ -7,6 +7,7 @@ import br.com.matteusmoreno.domain.dto.request.CreateContractRequestDto;
 import br.com.matteusmoreno.domain.dto.request.RegisterPaymentRequestDto;
 import br.com.matteusmoreno.domain.dto.response.ContractResponseDto;
 import br.com.matteusmoreno.domain.entity.Contract;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
@@ -29,6 +30,7 @@ public class ContractResource {
 
     @POST
     @Path("/create")
+    @RolesAllowed("ADMIN")
     public Response create(@Valid CreateContractRequestDto request) {
         Contract contract = contractController.createContract(request);
 
@@ -37,6 +39,7 @@ public class ContractResource {
 
     @GET
     @Path("/{contractId}")
+    @RolesAllowed({"ADMIN", "CUSTOMER"})
     public Response findById(@PathParam(RequestParam.CONTRACT_ID) String contractId) {
         Contract contract = contractController.findContractById(contractId);
 
@@ -46,6 +49,7 @@ public class ContractResource {
 
     @PATCH
     @Path("/payment/register")
+    @RolesAllowed("ADMIN")
     public Response registerPayment(@Valid RegisterPaymentRequestDto request) {
         Contract contract = contractController.registerPayment(request);
 
@@ -54,6 +58,7 @@ public class ContractResource {
 
     @PATCH
     @Path("/fine/add")
+    @RolesAllowed("ADMIN")
     public Response addFine(@Valid AddFineRequestDto request) {
         Contract contract = contractController.addFine(request);
 
@@ -62,6 +67,7 @@ public class ContractResource {
 
     @PATCH
     @Path("/{contractId}/fine/{fineId}/pay")
+    @RolesAllowed("ADMIN")
     public Response payFine(@PathParam(RequestParam.CONTRACT_ID) String contractId, @PathParam(RequestParam.FINE_ID) String fineId) {
         Contract contract = contractController.payFine(contractId, fineId);
 
@@ -70,6 +76,7 @@ public class ContractResource {
 
     @PATCH
     @Path("/{contractId}/finish")
+    @RolesAllowed("ADMIN")
     public Response finish(@PathParam(RequestParam.CONTRACT_ID) String contractId, @QueryParam("refundDeposit") @NotNull(message = "refundDeposit is required") Boolean refundDeposit) {
         Contract contract = contractController.finishContract(contractId, refundDeposit);
 
@@ -78,6 +85,7 @@ public class ContractResource {
 
     @PATCH
     @Path("/{contractId}/cancel")
+    @RolesAllowed("ADMIN")
     public Response cancel(@PathParam(RequestParam.CONTRACT_ID) String contractId) {
         Contract contract = contractController.cancelContract(contractId);
 
@@ -86,6 +94,7 @@ public class ContractResource {
 
     @POST
     @Path("/{contractId}/upload-file")
+    @RolesAllowed("ADMIN")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response uploadFile(@PathParam(RequestParam.CONTRACT_ID) String contractId, @RestForm("file") @NotNull(message = "File is required") FileUpload file) throws IOException {
         byte[] fileBytes = Files.readAllBytes(file.uploadedFile());
@@ -95,4 +104,3 @@ public class ContractResource {
         return Response.status(Response.Status.OK).entity(new ContractResponseDto(contract)).build();
     }
 }
-

@@ -3,6 +3,7 @@ package br.com.matteusmoreno.application.resource.rest;
 import br.com.matteusmoreno.domain.controller.AuthController;
 import br.com.matteusmoreno.domain.dto.request.LoginRequestDto;
 import br.com.matteusmoreno.domain.dto.response.LoginResponseDto;
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -21,6 +22,7 @@ public class AuthResource {
 
     @POST
     @Path("/login")
+    @PermitAll
     public Response login(@Valid LoginRequestDto loginRequestDto) throws InvalidCredentialsException {
         LoginResponseDto token = this.authController.login(loginRequestDto);
 

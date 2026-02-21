@@ -20,6 +20,7 @@ import org.jboss.resteasy.reactive.multipart.FileUpload;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import jakarta.annotation.security.RolesAllowed;
 
 @Path("/motorcycles")
 public class MotorcycleResource {
@@ -34,6 +35,7 @@ public class MotorcycleResource {
 
     @POST
     @Path("/create")
+    @RolesAllowed("ADMIN")
     public Response create(@Valid CreateMotorcycleRequestDto request) {
         Motorcycle motorcycle = this.motorcycleController.createMotorcycle(request);
 
@@ -42,6 +44,7 @@ public class MotorcycleResource {
 
     @GET
     @Path("/{motorcycleId}")
+    @RolesAllowed({"ADMIN", "CUSTOMER"})
     public Response findById(@PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
         Motorcycle motorcycle = this.motorcycleController.findMotorcycleById(motorcycleId);
 
@@ -50,6 +53,7 @@ public class MotorcycleResource {
 
     @GET
     @Path("/{motorcycleId}/contracts")
+    @RolesAllowed("ADMIN")
     public Response findContractsByMotorcycleId(@PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
         List<Contract> contracts = this.contractController.findContractsByMotorcycleId(motorcycleId);
 
@@ -58,6 +62,7 @@ public class MotorcycleResource {
 
     @GET
     @Path("/all")
+    @RolesAllowed("ADMIN")
     public Response findAll() {
         List<Motorcycle> motorcycles = this.motorcycleController.findAllMotorcycles();
 
@@ -66,6 +71,7 @@ public class MotorcycleResource {
 
     @GET
     @Path("/all/available")
+    @RolesAllowed({"ADMIN", "CUSTOMER"})
     public Response findAllAvailable() {
         List<Motorcycle> motorcycles = this.motorcycleController.findAllAvailableMotorcycles();
 
@@ -74,6 +80,7 @@ public class MotorcycleResource {
 
     @PUT
     @Path("/update")
+    @RolesAllowed("ADMIN")
     public Response update(@Valid UpdateMotorcycleRequestDto request) {
         Motorcycle motorcycle = this.motorcycleController.updateMotorcycle(request);
 
@@ -82,6 +89,7 @@ public class MotorcycleResource {
 
     @PATCH
     @Path("/{motorcycleId}/disable")
+    @RolesAllowed("ADMIN")
     public Response disable(@PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
         Motorcycle motorcycle = this.motorcycleController.disableMotorcycle(motorcycleId);
 
@@ -90,6 +98,7 @@ public class MotorcycleResource {
 
     @PATCH
     @Path("/{motorcycleId}/enable")
+    @RolesAllowed("ADMIN")
     public Response enable(@PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
         Motorcycle motorcycle = this.motorcycleController.enableMotorcycle(motorcycleId);
 
@@ -98,6 +107,7 @@ public class MotorcycleResource {
 
     @POST
     @Path("/{motorcycleId}/upload-document")
+    @RolesAllowed("ADMIN")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response uploadDocument(@PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId, @RestForm("file") @NotNull(message = "File is required") FileUpload file) throws IOException {
         byte[] fileBytes = Files.readAllBytes(file.uploadedFile());
@@ -109,6 +119,7 @@ public class MotorcycleResource {
 
     @DELETE
     @Path("/{motorcycleId}/delete-document")
+    @RolesAllowed("ADMIN")
     public Response deleteDocument(@PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
         Motorcycle motorcycle = this.motorcycleController.deleteDocument(motorcycleId);
 
