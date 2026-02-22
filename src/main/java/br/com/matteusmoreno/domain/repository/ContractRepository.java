@@ -19,11 +19,13 @@ public class ContractRepository implements PanacheMongoRepositoryBase<Contract, 
     }
 
     public List<Contract> findContractsByUserId(String userId) {
-        return find("user.userId", userId).list();
+        if (!ObjectId.isValid(userId)) return List.of();
+        return find("user._id", new ObjectId(userId)).list();
     }
 
     public List<Contract> findContractsByMotorcycleId(String motorcycleId) {
-        return find("motorcycle.motorcycleId", motorcycleId).list();
+        if (!ObjectId.isValid(motorcycleId)) return List.of();
+        return find("motorcycle._id", new ObjectId(motorcycleId)).list();
     }
 }
 
