@@ -21,6 +21,10 @@ public class ContractController {
         return contractService.createContract(request);
     }
 
+    public List<Contract> findAllContracts() {
+        return contractService.findAllContracts();
+    }
+
     public Contract findContractById(String contractId) {
         return contractService.findContractById(contractId);
     }

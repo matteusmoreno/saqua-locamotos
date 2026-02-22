@@ -72,6 +72,11 @@ public class ContractService {
         return contract;
     }
 
+    public List<Contract> findAllContracts() {
+        log.info("Listing all contracts");
+        return contractRepository.listAll();
+    }
+
     public Contract findContractById(String contractId) {
         log.info("Finding contract with ID: {}", contractId);
         return contractRepository.findContractById(contractId);

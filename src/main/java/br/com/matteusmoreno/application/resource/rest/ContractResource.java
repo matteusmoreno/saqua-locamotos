@@ -39,6 +39,14 @@ public class ContractResource {
     }
 
     @GET
+    @Path("/all")
+    @RolesAllowed("ADMIN")
+    public Response findAll() {
+        return Response.ok(contractController.findAllContracts()
+                .stream().map(ContractResponseDto::new).toList()).build();
+    }
+
+    @GET
     @Path("/{contractId}")
     @RolesAllowed({"ADMIN", "CUSTOMER"})
     public Response findById(@PathParam(RequestParam.CONTRACT_ID) String contractId) {
