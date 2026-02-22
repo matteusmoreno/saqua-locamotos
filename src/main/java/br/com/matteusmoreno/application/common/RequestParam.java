@@ -6,6 +6,7 @@ public class RequestParam {
     public static final String MOTORCYCLE_ID = "motorcycleId";
     public static final String CONTRACT_ID = "contractId";
     public static final String FINE_ID = "fineId";
+    public static final String PAYMENT_ID = "paymentId";
     public static final String CEP = "cep";
     public static final String ZIP_CODE = "zipCode";
     public static final String NUMBER = "number";

@@ -1,20 +1,16 @@
 package br.com.matteusmoreno.domain.service;
 
 import br.com.matteusmoreno.application.exception.FineNotFoundException;
-import br.com.matteusmoreno.application.exception.PaymentNotFoundException;
 import br.com.matteusmoreno.application.service.CloudinaryService;
 import br.com.matteusmoreno.domain.constant.CloudinaryFolder;
 import br.com.matteusmoreno.domain.constant.ContractStatus;
-import br.com.matteusmoreno.domain.constant.PaymentStatus;
 import br.com.matteusmoreno.domain.constant.RentalType;
 import br.com.matteusmoreno.domain.dto.request.AddFineRequestDto;
 import br.com.matteusmoreno.domain.dto.request.CreateContractRequestDto;
-import br.com.matteusmoreno.domain.dto.request.RegisterPaymentRequestDto;
 import br.com.matteusmoreno.domain.entity.Contract;
 import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.entity.User;
 import br.com.matteusmoreno.domain.model.Fine;
-import br.com.matteusmoreno.domain.model.Payment;
 import br.com.matteusmoreno.domain.repository.ContractRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
@@ -48,35 +43,9 @@ public class ContractService {
         motorcycleService.validateMotorcycleAvailability(motorcycle);
 
         LocalDate startDate = request.startDate();
-        LocalDate endDate;
-        List<Payment> payments = new ArrayList<>();
-
-        if (request.rentalType() == RentalType.MONTHLY) {
-            endDate = startDate.plusDays(30);
-            // Generate 4 weekly payments
-            for (int i = 1; i <= 4; i++) {
-                payments.add(Payment.builder()
-                        .amount(request.weeklyAmount())
-                        .dueDate(startDate.plusWeeks(i))
-                        .status(PaymentStatus.PENDING)
-                        .description("Weekly payment " + i + "/4")
-                        .build());
-            }
-        } else {
-            // FIFTEEN_DAYS - full payment upfront
-            endDate = startDate.plusDays(15);
-            payments.add(Payment.builder()
-                    .amount(request.weeklyAmount())
-                    .dueDate(startDate)
-                    .status(PaymentStatus.PENDING)
-                    .description("Full payment - 15 days rental")
-                    .build());
-        }
-
-        BigDecimal totalAmount = payments.stream()
-                .map(Payment::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .add(request.depositAmount());
+        LocalDate endDate = request.rentalType() == RentalType.MONTHLY
+                ? startDate.plusDays(30)
+                : startDate.plusDays(15);
 
         Contract contract = Contract.builder()
                 .user(user)
@@ -89,8 +58,7 @@ public class ContractService {
                 .depositPaid(false)
                 .depositRefunded(false)
                 .weeklyAmount(request.weeklyAmount())
-                .totalAmount(totalAmount)
-                .payments(payments)
+                .totalAmount(BigDecimal.ZERO)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -117,38 +85,6 @@ public class ContractService {
     public List<Contract> findContractsByMotorcycleId(String motorcycleId) {
         log.info("Finding contracts for motorcycle: {}", motorcycleId);
         return contractRepository.findContractsByMotorcycleId(motorcycleId);
-    }
-
-    public Contract registerPayment(RegisterPaymentRequestDto request) {
-        Contract contract = contractRepository.findContractById(request.contractId());
-
-        Payment payment = contract.getPayments().stream()
-                .filter(p -> p.getPaymentId().equals(request.paymentId()))
-                .findFirst()
-                .orElseThrow(PaymentNotFoundException::new);
-
-        payment.setStatus(PaymentStatus.PAID);
-        payment.setPaidDate(LocalDate.now());
-        payment.setMethod(request.method());
-
-        // if deposit payment description, mark deposit as paid
-        if (Boolean.FALSE.equals(contract.getDepositPaid()) && payment.getDescription() != null
-                && payment.getDescription().toLowerCase().contains("deposit")) {
-            contract.setDepositPaid(true);
-        }
-
-        // if all payments are PAID and no unpaid fines, mark contract as ACTIVE
-        boolean allPaymentsPaid = contract.getPayments().stream().allMatch(p -> p.getStatus() == PaymentStatus.PAID);
-        boolean hasUnpaidFines = contract.getFines().stream().anyMatch(f -> Boolean.FALSE.equals(f.getPaid()));
-        if (allPaymentsPaid && !hasUnpaidFines) {
-            contract.setStatus(ContractStatus.ACTIVE);
-        }
-
-        contract.setUpdatedAt(LocalDateTime.now());
-        contractRepository.update(contract);
-
-        log.info("Payment {} registered for contract {}", request.paymentId(), request.contractId());
-        return contract;
     }
 
     public Contract addFine(AddFineRequestDto request) {
@@ -234,4 +170,3 @@ public class ContractService {
         return contract;
     }
 }
-

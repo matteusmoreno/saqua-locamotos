@@ -3,7 +3,6 @@ package br.com.matteusmoreno.domain.entity;
 import br.com.matteusmoreno.domain.constant.ContractStatus;
 import br.com.matteusmoreno.domain.constant.RentalType;
 import br.com.matteusmoreno.domain.model.Fine;
-import br.com.matteusmoreno.domain.model.Payment;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import lombok.*;
 import org.bson.BsonType;
@@ -46,7 +45,7 @@ public class Contract {
     private String contractUrl;
 
     @Builder.Default
-    private List<Payment> payments = new ArrayList<>();
+    private List<String> paymentIds = new ArrayList<>();
 
     @Builder.Default
     private List<Fine> fines = new ArrayList<>();
@@ -54,4 +53,3 @@ public class Contract {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
-

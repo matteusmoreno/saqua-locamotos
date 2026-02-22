@@ -6,13 +6,9 @@ import jakarta.validation.constraints.NotNull;
 
 public record RegisterPaymentRequestDto(
 
-        @NotBlank(message = "Contract ID is required")
-        String contractId,
-
         @NotBlank(message = "Payment ID is required")
         String paymentId,
 
         @NotNull(message = "Payment method is required")
         PaymentMethod method
 ) {}
-

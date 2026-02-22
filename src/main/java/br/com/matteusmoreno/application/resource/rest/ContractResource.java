@@ -4,7 +4,6 @@ import br.com.matteusmoreno.application.common.RequestParam;
 import br.com.matteusmoreno.domain.controller.ContractController;
 import br.com.matteusmoreno.domain.dto.request.AddFineRequestDto;
 import br.com.matteusmoreno.domain.dto.request.CreateContractRequestDto;
-import br.com.matteusmoreno.domain.dto.request.RegisterPaymentRequestDto;
 import br.com.matteusmoreno.domain.dto.response.ContractResponseDto;
 import br.com.matteusmoreno.domain.entity.Contract;
 import jakarta.annotation.security.RolesAllowed;
@@ -20,6 +19,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 @Path("/contracts")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class ContractResource {
 
     private final ContractController contractController;
@@ -46,15 +47,6 @@ public class ContractResource {
         return Response.status(Response.Status.OK).entity(new ContractResponseDto(contract)).build();
     }
 
-
-    @PATCH
-    @Path("/payment/register")
-    @RolesAllowed("ADMIN")
-    public Response registerPayment(@Valid RegisterPaymentRequestDto request) {
-        Contract contract = contractController.registerPayment(request);
-
-        return Response.status(Response.Status.OK).entity(new ContractResponseDto(contract)).build();
-    }
 
     @PATCH
     @Path("/fine/add")
