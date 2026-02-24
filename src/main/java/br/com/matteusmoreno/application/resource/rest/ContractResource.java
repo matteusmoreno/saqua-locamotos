@@ -14,6 +14,8 @@ import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 
+import jakarta.ws.rs.core.HttpHeaders;
+
 import java.io.IOException;
 import java.nio.file.Files;
 
@@ -70,6 +72,18 @@ public class ContractResource {
         Contract contract = contractController.cancelContract(contractId);
 
         return Response.status(Response.Status.OK).entity(new ContractResponseDto(contract)).build();
+    }
+
+    @GET
+    @Path("/{contractId}/generate-pdf")
+    @RolesAllowed("ADMIN")
+    @Produces("application/pdf")
+    public Response generatePdf(@PathParam(RequestParam.CONTRACT_ID) String contractId) {
+        byte[] pdf = contractController.generateContractPdf(contractId);
+        return Response.ok(pdf)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"contrato-" + contractId + ".pdf\"")
+                .header(HttpHeaders.CONTENT_LENGTH, pdf.length)
+                .build();
     }
 
     @POST

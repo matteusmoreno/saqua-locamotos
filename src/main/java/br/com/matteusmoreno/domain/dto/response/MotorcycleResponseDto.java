@@ -12,6 +12,7 @@ public record MotorcycleResponseDto(
         String color,
         String chassis,
         String documentUrl,
+        Integer mileage,
         Boolean available,
         Boolean active
 ) {
@@ -27,6 +28,7 @@ public record MotorcycleResponseDto(
                 motorcycle.getColor(),
                 motorcycle.getChassis(),
                 motorcycle.getDocumentUrl(),
+                motorcycle.getMileage(),
                 motorcycle.getAvailable(),
                 motorcycle.getActive()
         );

@@ -24,6 +24,7 @@ public class Motorcycle {
     private String color;
     private String chassis;
     private String documentUrl;
+    private Integer mileage;
     private Boolean available;
     private Boolean active;
 

@@ -2,6 +2,7 @@ package br.com.matteusmoreno.domain.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 public record CreateMotorcycleRequestDto(
         @NotBlank(message = "Renavam is required")
@@ -18,6 +19,9 @@ public record CreateMotorcycleRequestDto(
         String color,
         @NotBlank(message = "Chassis is required")
         String chassis,
+        @NotNull(message = "Mileage is required")
+        @PositiveOrZero(message = "Mileage must be zero or positive")
+        Integer mileage,
         @NotNull(message = "Available is required")
         Boolean available
 ) {

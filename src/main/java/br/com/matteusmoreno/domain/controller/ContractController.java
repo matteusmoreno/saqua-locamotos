@@ -44,6 +44,10 @@ public class ContractController {
         return contractService.cancelContract(contractId);
     }
 
+    public byte[] generateContractPdf(String contractId) {
+        return contractService.generateContractPdf(contractId);
+    }
+
     public Contract uploadContractFile(String contractId, byte[] fileBytes) {
         return contractService.uploadContractFile(contractId, fileBytes);
     }

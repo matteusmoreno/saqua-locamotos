@@ -1,6 +1,7 @@
 package br.com.matteusmoreno.domain.service;
 
 import br.com.matteusmoreno.application.service.CloudinaryService;
+import br.com.matteusmoreno.application.service.PdfContractService;
 import br.com.matteusmoreno.domain.constant.CloudinaryFolder;
 import br.com.matteusmoreno.domain.constant.ContractStatus;
 import br.com.matteusmoreno.domain.constant.RentalType;
@@ -25,12 +26,14 @@ public class ContractService {
     private final UserService userService;
     private final MotorcycleService motorcycleService;
     private final CloudinaryService cloudinaryService;
+    private final PdfContractService pdfContractService;
 
-    public ContractService(ContractRepository contractRepository, UserService userService, MotorcycleService motorcycleService, CloudinaryService cloudinaryService) {
+    public ContractService(ContractRepository contractRepository, UserService userService, MotorcycleService motorcycleService, CloudinaryService cloudinaryService, PdfContractService pdfContractService) {
         this.contractRepository = contractRepository;
         this.userService = userService;
         this.motorcycleService = motorcycleService;
         this.cloudinaryService = cloudinaryService;
+        this.pdfContractService = pdfContractService;
     }
 
     public Contract createContract(CreateContractRequestDto request) {
@@ -117,6 +120,12 @@ public class ContractService {
 
         log.info("Contract file uploaded for contract: {}", contractId);
         return contract;
+    }
+
+    public byte[] generateContractPdf(String contractId) {
+        Contract contract = contractRepository.findContractById(contractId);
+        log.info("Generating PDF for contract: {}", contractId);
+        return pdfContractService.generateContractPdf(contract);
     }
 
     public Contract cancelContract(String contractId) {

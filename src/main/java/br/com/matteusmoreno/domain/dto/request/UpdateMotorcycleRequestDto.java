@@ -12,6 +12,7 @@ public record UpdateMotorcycleRequestDto(
             String year,
             String color,
             String chassis,
+            Integer mileage,
             Boolean available
 ) {
 }

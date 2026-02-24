@@ -42,6 +42,7 @@ public class MotorcycleService {
                 .year(request.year().toUpperCase())
                 .color(request.color().toUpperCase())
                 .chassis(request.chassis().toUpperCase())
+                .mileage(request.mileage())
                 .available(request.available())
                 .active(true)
                 .build();
@@ -77,7 +78,8 @@ public class MotorcycleService {
         if (request.plate() != null) motorcycle.setPlate(request.plate().toUpperCase());
         if (request.year() != null) motorcycle.setYear(request.year());
         if (request.color() != null) motorcycle.setColor(request.color().toUpperCase());
-        if (request.chassis() != null) motorcycle.setChassis(request.chassis().toUpperCase());
+        if (request.chassis()   != null) motorcycle.setChassis(request.chassis().toUpperCase());
+        if (request.mileage()   != null) motorcycle.setMileage(request.mileage());
         if (request.available() != null) motorcycle.setAvailable(request.available());
 
         this.motorcycleRepository.update(motorcycle);
