@@ -30,14 +30,21 @@ public class CloudinaryService {
 
     public String upload(byte[] fileBytes, String publicId, CloudinaryFolder folder) {
         try {
-            log.info("Uploading file to Cloudinary: folder={}, publicId={}", folder.getPath(), publicId);
+            log.info("Uploading file to Cloudinary: folder={}, publicId={}, resourceType={}",
+                    folder.getPath(), publicId, folder.getResourceType());
 
-            Map result = cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap(
-                    "public_id", publicId,
+            // For raw files, append .pdf so Cloudinary serves the correct Content-Type
+            String finalPublicId = "raw".equals(folder.getResourceType()) ? publicId + ".pdf" : publicId;
+
+            Map<String, Object> uploadParams = ObjectUtils.asMap(
+                    "public_id", finalPublicId,
                     "folder", folder.getPath(),
                     "overwrite", true,
-                    "resource_type", "auto"
-            ));
+                    "resource_type", folder.getResourceType(),
+                    "access_mode", "public"
+            );
+
+            Map result = this.cloudinary.uploader().upload(fileBytes, uploadParams);
 
             String url = (String) result.get("secure_url");
             log.info("File uploaded successfully: {}", url);
@@ -49,10 +56,10 @@ public class CloudinaryService {
         }
     }
 
-    public void delete(String publicId) {
+    public void delete(String publicId, String resourceType) {
         try {
-            log.info("Deleting file from Cloudinary: publicId={}", publicId);
-            cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+            log.info("Deleting file from Cloudinary: publicId={}, resourceType={}", publicId, resourceType);
+            this.cloudinary.uploader().destroy(publicId, ObjectUtils.asMap("resource_type", resourceType));
             log.info("File deleted from Cloudinary: publicId={}", publicId);
         } catch (Exception e) {
             log.error("Error deleting file from Cloudinary: {}", e.getMessage());
@@ -65,12 +72,16 @@ public class CloudinaryService {
         int uploadIndex = url.indexOf("/upload/");
         if (uploadIndex == -1) return null;
         String afterUpload = url.substring(uploadIndex + 8);
-        int versionSlash = afterUpload.indexOf("/");
-        if (afterUpload.startsWith("v") && versionSlash != -1) {
-            afterUpload = afterUpload.substring(versionSlash + 1);
+        // strip version segment (e.g. v1771953774/)
+        if (afterUpload.matches("v\\d+/.*")) {
+            afterUpload = afterUpload.substring(afterUpload.indexOf("/") + 1);
         }
+        // raw files keep extension (e.g. .pdf) — Cloudinary requires it for destroy
+        if (afterUpload.endsWith(".pdf")) {
+            return afterUpload;
+        }
+        // image files strip extension
         int dotIndex = afterUpload.lastIndexOf(".");
         return dotIndex != -1 ? afterUpload.substring(0, dotIndex) : afterUpload;
     }
 }
-

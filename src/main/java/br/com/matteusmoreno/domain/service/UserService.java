@@ -91,7 +91,7 @@ public class UserService {
 
         if (user.getPictureUrl() != null && !user.getPictureUrl().isBlank()) {
             String oldPublicId = this.cloudinaryService.extractPublicId(user.getPictureUrl());
-            this.cloudinaryService.delete(oldPublicId);
+            this.cloudinaryService.delete(oldPublicId, CloudinaryFolder.USER_PICTURE.getResourceType());
         }
 
         String url = this.cloudinaryService.upload(fileBytes, user.getUserId(), CloudinaryFolder.USER_PICTURE);
@@ -111,10 +111,10 @@ public class UserService {
             throw new PictureNotFoundException();
         }
 
-        cloudinaryService.delete(cloudinaryService.extractPublicId(user.getPictureUrl()));
+        this.cloudinaryService.delete(this.cloudinaryService.extractPublicId(user.getPictureUrl()), CloudinaryFolder.USER_PICTURE.getResourceType());
         user.setPictureUrl(null);
         user.setUpdatedAt(now);
-        userRepository.update(user);
+        this.userRepository.update(user);
 
         log.info("Picture deleted for user: {}", userId);
         return user;
@@ -138,7 +138,7 @@ public class UserService {
             // Delete old file if exists
             String existingUrl = getDocumentUrl(user, documentType);
             if (existingUrl != null && !existingUrl.isBlank()) {
-                this.cloudinaryService.delete(this.cloudinaryService.extractPublicId(existingUrl));
+                this.cloudinaryService.delete(this.cloudinaryService.extractPublicId(existingUrl), CloudinaryFolder.USER_DOCUMENT.getResourceType());
             }
 
             String url = this.cloudinaryService.upload(fileBytes, publicId, CloudinaryFolder.USER_DOCUMENT);
@@ -162,7 +162,7 @@ public class UserService {
                 throw new DocumentNotFoundException();
             }
 
-            this.cloudinaryService.delete(this.cloudinaryService.extractPublicId(existingUrl));
+            this.cloudinaryService.delete(this.cloudinaryService.extractPublicId(existingUrl), CloudinaryFolder.USER_DOCUMENT.getResourceType());
             setDocumentUrl(user, documentType.toLowerCase(), null);
             log.info("Document {} deleted for user: {}", documentType, userId);
         }

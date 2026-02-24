@@ -133,13 +133,13 @@ public class MotorcycleService {
         Motorcycle motorcycle = this.findMotorcycleById(motorcycleId);
 
         if (motorcycle.getDocumentUrl() != null && !motorcycle.getDocumentUrl().isBlank()) {
-            String oldPublicId = cloudinaryService.extractPublicId(motorcycle.getDocumentUrl());
-            cloudinaryService.delete(oldPublicId);
+            String oldPublicId = this.cloudinaryService.extractPublicId(motorcycle.getDocumentUrl());
+            this.cloudinaryService.delete(oldPublicId, CloudinaryFolder.MOTORCYCLE_DOCUMENT.getResourceType());
         }
 
-        String url = cloudinaryService.upload(fileBytes, motorcycle.getMotorcycleId(), CloudinaryFolder.MOTORCYCLE_DOCUMENT);
+        String url = this.cloudinaryService.upload(fileBytes, motorcycle.getMotorcycleId(), CloudinaryFolder.MOTORCYCLE_DOCUMENT);
         motorcycle.setDocumentUrl(url);
-        motorcycleRepository.update(motorcycle);
+        this.motorcycleRepository.update(motorcycle);
 
         log.info("Document uploaded for motorcycle: {}", motorcycleId);
         return motorcycle;
@@ -152,9 +152,9 @@ public class MotorcycleService {
             throw new MotorcycleDocumentNotFoundException();
         }
 
-        cloudinaryService.delete(cloudinaryService.extractPublicId(motorcycle.getDocumentUrl()));
+        this.cloudinaryService.delete(this.cloudinaryService.extractPublicId(motorcycle.getDocumentUrl()), CloudinaryFolder.MOTORCYCLE_DOCUMENT.getResourceType());
         motorcycle.setDocumentUrl(null);
-        motorcycleRepository.update(motorcycle);
+        this.motorcycleRepository.update(motorcycle);
 
         log.info("Document deleted for motorcycle: {}", motorcycleId);
         return motorcycle;

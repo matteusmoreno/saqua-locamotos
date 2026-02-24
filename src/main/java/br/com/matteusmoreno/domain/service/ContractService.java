@@ -116,7 +116,7 @@ public class ContractService {
         LocalDateTime now = this.dateUtils.now();
 
         if (contract.getContractUrl() != null && !contract.getContractUrl().isBlank()) {
-            this.cloudinaryService.delete(this.cloudinaryService.extractPublicId(contract.getContractUrl()));
+            this.cloudinaryService.delete(this.cloudinaryService.extractPublicId(contract.getContractUrl()), CloudinaryFolder.CONTRACT_FILE.getResourceType());
         }
 
         String url = this.cloudinaryService.upload(fileBytes, contract.getContractId(), CloudinaryFolder.CONTRACT_FILE);
