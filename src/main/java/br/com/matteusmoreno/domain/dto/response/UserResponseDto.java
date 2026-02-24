@@ -4,6 +4,7 @@ import br.com.matteusmoreno.domain.constant.MaritalStatus;
 import br.com.matteusmoreno.domain.constant.UserRole;
 import br.com.matteusmoreno.domain.entity.User;
 import br.com.matteusmoreno.domain.model.Address;
+import br.com.matteusmoreno.domain.model.UserDocument;
 
 public record UserResponseDto(
         String customerId,
@@ -18,6 +19,7 @@ public record UserResponseDto(
         Address address,
         String pictureUrl,
         UserRole role,
+        UserDocument documents,
         String createdAt,
         String updatedAt
 ) {
@@ -36,6 +38,7 @@ public record UserResponseDto(
                 user.getAddress(),
                 user.getPictureUrl(),
                 user.getRole(),
+                user.getDocuments(),
                 user.getCreatedAt().toString(),
                 user.getUpdatedAt().toString()
         );

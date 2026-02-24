@@ -10,10 +10,11 @@ public enum Errors {
     USER_NOT_FOUND("User not found"),
     USER_ALREADY_EXISTS("User already exists"),
     PICTURE_NOT_FOUND("User does not have a picture"),
+    DOCUMENT_NOT_FOUND("User does not have the specified document"),
     CONTRACT_NOT_FOUND("Contract not found"),
     PAYMENT_NOT_FOUND("Payment not found"),
-    FINE_NOT_FOUND("Fine not found");
-
+    FINE_NOT_FOUND("Fine not found"),
+    UNAUTHORIZED_ACCESS("Access denied");
 
     private final String displayName;
 

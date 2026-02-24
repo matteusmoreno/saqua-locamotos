@@ -16,11 +16,14 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.reactive.RestForm;
+import org.jboss.resteasy.reactive.RestQuery;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Path("/users")
 public class UserResource {
@@ -100,5 +103,55 @@ public class UserResource {
         User user = this.userController.deletePicture(userId);
 
         return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
+    }
+
+    @POST
+    @Path("/{userId}/upload-documents")
+    @RolesAllowed({"ADMIN", "CUSTOMER"})
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadDocuments(
+            @PathParam(RequestParam.USER_ID) String userId,
+            @RestForm("cnh") FileUpload cnh,
+            @RestForm("cpf") FileUpload cpf,
+            @RestForm("rg") FileUpload rg,
+            @RestForm("proof_of_residence") FileUpload proofOfResidence,
+            @RestForm("criminal_record") FileUpload criminalRecord,
+            @RestForm("passport") FileUpload passport) throws IOException {
+
+        Map<String, byte[]> documents = new HashMap<>();
+        addDocument(documents, "cnh", cnh);
+        addDocument(documents, "cpf", cpf);
+        addDocument(documents, "rg", rg);
+        addDocument(documents, "proof_of_residence", proofOfResidence);
+        addDocument(documents, "criminal_record", criminalRecord);
+        addDocument(documents, "passport", passport);
+
+        if (documents.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("At least one document file is required").build();
+        }
+
+        User user = this.userController.uploadDocuments(userId, documents);
+        return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
+    }
+
+    @DELETE
+    @Path("/{userId}/delete-documents")
+    @RolesAllowed({"ADMIN", "CUSTOMER"})
+    public Response deleteDocuments(
+            @PathParam(RequestParam.USER_ID) String userId,
+            @RestQuery("types") List<String> documentTypes) {
+
+        if (documentTypes == null || documentTypes.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("At least one document type is required").build();
+        }
+
+        User user = this.userController.deleteDocuments(userId, documentTypes);
+        return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
+    }
+
+    protected void addDocument(Map<String, byte[]> map, String key, FileUpload file) throws IOException {
+        if (file != null && file.uploadedFile() != null && file.size() > 0) {
+            map.put(key, Files.readAllBytes(file.uploadedFile()));
+        }
     }
 }

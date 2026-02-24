@@ -7,6 +7,7 @@ import br.com.matteusmoreno.domain.service.UserService;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class UserController {
@@ -35,6 +36,14 @@ public class UserController {
 
     public User deletePicture(String userId) {
         return this.userService.deletePicture(userId);
+    }
+
+    public User uploadDocuments(String userId, Map<String, byte[]> documents) {
+        return this.userService.uploadDocuments(userId, documents);
+    }
+
+    public User deleteDocuments(String userId, List<String> documentTypes) {
+        return this.userService.deleteDocuments(userId, documentTypes);
     }
 
     public User updateUser(UpdateUserRequestDto request) {

@@ -1,6 +1,7 @@
 package br.com.matteusmoreno.domain.dto.request;
 
 import br.com.matteusmoreno.domain.constant.MaritalStatus;
+import br.com.matteusmoreno.domain.model.UserDocument;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -22,6 +23,7 @@ public record CreateUserRequestDto(
         String occupation,
         MaritalStatus maritalStatus,
         CreateAddressRequestDto address,
-        String pictureUrl
+        String pictureUrl,
+        UserDocument documents
 ) {
 }

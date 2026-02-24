@@ -3,6 +3,7 @@ package br.com.matteusmoreno.domain.entity;
 import br.com.matteusmoreno.domain.constant.MaritalStatus;
 import br.com.matteusmoreno.domain.constant.UserRole;
 import br.com.matteusmoreno.domain.model.Address;
+import br.com.matteusmoreno.domain.model.UserDocument;
 import br.com.matteusmoreno.domain.model.ErrorInfo;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import lombok.*;
@@ -37,6 +38,7 @@ public class User {
     @Builder.Default
     private List<ErrorInfo> errors = new ArrayList<>();
     private String pictureUrl;
+    private UserDocument documents;
     private UserRole role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -1,6 +1,8 @@
 package br.com.matteusmoreno.domain.service;
 
+import br.com.matteusmoreno.application.exception.DocumentNotFoundException;
 import br.com.matteusmoreno.application.exception.PictureNotFoundException;
+import br.com.matteusmoreno.application.exception.UnauthorizedAccessException;
 import br.com.matteusmoreno.application.exception.UserAlreadyExistsException;
 import br.com.matteusmoreno.application.service.CloudinaryService;
 import br.com.matteusmoreno.domain.constant.CloudinaryFolder;
@@ -9,13 +11,16 @@ import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
 import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
 import br.com.matteusmoreno.domain.entity.User;
 import br.com.matteusmoreno.domain.model.Address;
+import br.com.matteusmoreno.domain.model.UserDocument;
 import br.com.matteusmoreno.domain.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.core.UriInfo;
+import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 @Slf4j
@@ -24,17 +29,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final AddressService addressService;
     private final PasswordService passwordService;
-    private final ErrorService errorService;
     private final CloudinaryService cloudinaryService;
-    private final UriInfo uriInfo;
+    private final JsonWebToken jwt;
 
-    public UserService(UserRepository userRepository, AddressService addressService, PasswordService passwordService, ErrorService errorService, CloudinaryService cloudinaryService, UriInfo uriInfo) {
+    public UserService(UserRepository userRepository, AddressService addressService, PasswordService passwordService, CloudinaryService cloudinaryService, JsonWebToken jwt) {
         this.userRepository = userRepository;
         this.addressService = addressService;
         this.passwordService = passwordService;
-        this.errorService = errorService;
         this.cloudinaryService = cloudinaryService;
-        this.uriInfo = uriInfo;
+        this.jwt = jwt;
     }
 
     public User createCustomer(CreateUserRequestDto request) {
@@ -115,6 +118,80 @@ public class UserService {
         return user;
     }
 
+    public User uploadDocuments(String userId, Map<String, byte[]> documents) {
+        this.validateOwnership(userId);
+        User user = this.findUserById(userId);
+
+        if (user.getDocuments() == null) {
+            user.setDocuments(new UserDocument());
+        }
+
+        for (Map.Entry<String, byte[]> entry : documents.entrySet()) {
+            String documentType = entry.getKey().toLowerCase();
+            byte[] fileBytes = entry.getValue();
+
+            String publicId = user.getUserId() + "_" + documentType;
+
+            // Delete old file if exists
+            String existingUrl = getDocumentUrl(user, documentType);
+            if (existingUrl != null && !existingUrl.isBlank()) {
+                this.cloudinaryService.delete(this.cloudinaryService.extractPublicId(existingUrl));
+            }
+
+            String url = this.cloudinaryService.upload(fileBytes, publicId, CloudinaryFolder.USER_DOCUMENT);
+            setDocumentUrl(user, documentType, url);
+            log.info("Document {} uploaded for user: {}", documentType, userId);
+        }
+
+        user.setUpdatedAt(LocalDateTime.now());
+        this.userRepository.update(user);
+        return user;
+    }
+
+    public User deleteDocuments(String userId, List<String> documentTypes) {
+        this.validateOwnership(userId);
+        User user = this.findUserById(userId);
+
+        for (String documentType : documentTypes) {
+            String existingUrl = getDocumentUrl(user, documentType.toLowerCase());
+            if (existingUrl == null || existingUrl.isBlank()) {
+                throw new DocumentNotFoundException();
+            }
+
+            this.cloudinaryService.delete(this.cloudinaryService.extractPublicId(existingUrl));
+            setDocumentUrl(user, documentType.toLowerCase(), null);
+            log.info("Document {} deleted for user: {}", documentType, userId);
+        }
+
+        user.setUpdatedAt(LocalDateTime.now());
+        this.userRepository.update(user);
+        return user;
+    }
+
+    private String getDocumentUrl(User user, String documentType) {
+        return switch (documentType) {
+            case "cnh" -> user.getDocuments().getCnh();
+            case "cpf" -> user.getDocuments().getCpfUrl();
+            case "rg" -> user.getDocuments().getRgUrl();
+            case "proof_of_residence" -> user.getDocuments().getProofOfResidenceUrl();
+            case "criminal_record" -> user.getDocuments().getCriminalRecordUrl();
+            case "passport" -> user.getDocuments().getPassportUrl();
+            default -> throw new IllegalArgumentException("Invalid document type: " + documentType);
+        };
+    }
+
+    private void setDocumentUrl(User user, String documentType, String url) {
+        switch (documentType) {
+            case "cnh" -> user.getDocuments().setCnh(url);
+            case "cpf" -> user.getDocuments().setCpfUrl(url);
+            case "rg" -> user.getDocuments().setRgUrl(url);
+            case "proof_of_residence" -> user.getDocuments().setProofOfResidenceUrl(url);
+            case "criminal_record" -> user.getDocuments().setCriminalRecordUrl(url);
+            case "passport" -> user.getDocuments().setPassportUrl(url);
+            default -> throw new IllegalArgumentException("Invalid document type: " + documentType);
+        }
+    }
+
     public User updateUser(UpdateUserRequestDto request) {
         log.info("Updating user with ID: {}", request.userId());
         User user = this.findUserById(request.userId());
@@ -139,6 +216,14 @@ public class UserService {
         return user;
     }
 
+
+    private void validateOwnership(String userId) {
+        boolean isAdmin = jwt.getGroups().contains("ADMIN");
+        if (!isAdmin && !jwt.getSubject().equals(userId)) {
+            log.warn("Access denied: caller {} tried to access user {}", jwt.getSubject(), userId);
+            throw new UnauthorizedAccessException();
+        }
+    }
 
     protected void validateExistingEmailOrCpfOrRgOrPhone(String email, String cpf, String rg, String phone) {
         log.info("Validating existing email or cpf or RG or Phone number");
