@@ -14,7 +14,6 @@ import br.com.matteusmoreno.domain.model.Address;
 import br.com.matteusmoreno.domain.model.UserDocument;
 import br.com.matteusmoreno.domain.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
@@ -41,10 +40,11 @@ public class UserService {
     }
 
     public User createCustomer(CreateUserRequestDto request) {
-
         this.validateExistingEmailOrCpfOrRgOrPhone(request.email(), request.cpf(), request.rg(), request.phone());
         Address address = this.addressService.getAddress(request.address());
         String passwordHash = this.passwordService.encryptPassword(request.cpf());
+        LocalDateTime now = LocalDateTime.now();
+
 
         log.info("Creating customer with email: {}", request.email());
         User user = User.builder()
@@ -60,8 +60,8 @@ public class UserService {
                 .address(address)
                 .pictureUrl(request.pictureUrl())
                 .role(UserRole.CUSTOMER)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .createdAt(now)
+                .updatedAt(now)
                 .build();
 
         this.userRepository.persist(user);
@@ -87,6 +87,7 @@ public class UserService {
 
     public User uploadPicture(String userId, byte[] fileBytes) {
         User user = this.findUserById(userId);
+        LocalDateTime now = LocalDateTime.now();
 
         if (user.getPictureUrl() != null && !user.getPictureUrl().isBlank()) {
             String oldPublicId = this.cloudinaryService.extractPublicId(user.getPictureUrl());
@@ -95,7 +96,7 @@ public class UserService {
 
         String url = this.cloudinaryService.upload(fileBytes, user.getUserId(), CloudinaryFolder.USER_PICTURE);
         user.setPictureUrl(url);
-        user.setUpdatedAt(LocalDateTime.now());
+        user.setUpdatedAt(now);
         this.userRepository.update(user);
 
         log.info("Picture uploaded for user: {}", userId);
@@ -104,6 +105,7 @@ public class UserService {
 
     public User deletePicture(String userId) {
         User user = this.findUserById(userId);
+        LocalDateTime now = LocalDateTime.now();
 
         if (user.getPictureUrl() == null || user.getPictureUrl().isBlank()) {
             throw new PictureNotFoundException();
@@ -111,7 +113,7 @@ public class UserService {
 
         cloudinaryService.delete(cloudinaryService.extractPublicId(user.getPictureUrl()));
         user.setPictureUrl(null);
-        user.setUpdatedAt(LocalDateTime.now());
+        user.setUpdatedAt(now);
         userRepository.update(user);
 
         log.info("Picture deleted for user: {}", userId);
@@ -121,6 +123,7 @@ public class UserService {
     public User uploadDocuments(String userId, Map<String, byte[]> documents) {
         this.validateOwnership(userId);
         User user = this.findUserById(userId);
+        LocalDateTime now = LocalDateTime.now();
 
         if (user.getDocuments() == null) {
             user.setDocuments(new UserDocument());
@@ -143,7 +146,7 @@ public class UserService {
             log.info("Document {} uploaded for user: {}", documentType, userId);
         }
 
-        user.setUpdatedAt(LocalDateTime.now());
+        user.setUpdatedAt(now);
         this.userRepository.update(user);
         return user;
     }
@@ -151,6 +154,7 @@ public class UserService {
     public User deleteDocuments(String userId, List<String> documentTypes) {
         this.validateOwnership(userId);
         User user = this.findUserById(userId);
+        LocalDateTime now = LocalDateTime.now();
 
         for (String documentType : documentTypes) {
             String existingUrl = getDocumentUrl(user, documentType.toLowerCase());
@@ -163,7 +167,7 @@ public class UserService {
             log.info("Document {} deleted for user: {}", documentType, userId);
         }
 
-        user.setUpdatedAt(LocalDateTime.now());
+        user.setUpdatedAt(now);
         this.userRepository.update(user);
         return user;
     }
@@ -195,6 +199,7 @@ public class UserService {
     public User updateUser(UpdateUserRequestDto request) {
         log.info("Updating user with ID: {}", request.userId());
         User user = this.findUserById(request.userId());
+        LocalDateTime now = LocalDateTime.now();
 
         if (request.name() != null) user.setName(request.name());
         if (request.email() != null) user.setEmail(request.email());
@@ -208,7 +213,7 @@ public class UserService {
             user.setAddress(address);
         }
 
-        user.setUpdatedAt(LocalDateTime.now());
+        user.setUpdatedAt(now);
 
         this.userRepository.update(user);
         log.info("User with ID: {} updated", request.userId());
