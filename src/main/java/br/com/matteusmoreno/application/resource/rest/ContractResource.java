@@ -2,7 +2,6 @@ package br.com.matteusmoreno.application.resource.rest;
 
 import br.com.matteusmoreno.application.common.RequestParam;
 import br.com.matteusmoreno.domain.controller.ContractController;
-import br.com.matteusmoreno.domain.dto.request.AddFineRequestDto;
 import br.com.matteusmoreno.domain.dto.request.CreateContractRequestDto;
 import br.com.matteusmoreno.domain.dto.response.ContractResponseDto;
 import br.com.matteusmoreno.domain.entity.Contract;
@@ -51,25 +50,6 @@ public class ContractResource {
     @RolesAllowed({"ADMIN", "CUSTOMER"})
     public Response findById(@PathParam(RequestParam.CONTRACT_ID) String contractId) {
         Contract contract = contractController.findContractById(contractId);
-
-        return Response.status(Response.Status.OK).entity(new ContractResponseDto(contract)).build();
-    }
-
-
-    @PATCH
-    @Path("/fine/add")
-    @RolesAllowed("ADMIN")
-    public Response addFine(@Valid AddFineRequestDto request) {
-        Contract contract = contractController.addFine(request);
-
-        return Response.status(Response.Status.OK).entity(new ContractResponseDto(contract)).build();
-    }
-
-    @PATCH
-    @Path("/{contractId}/fine/{fineId}/pay")
-    @RolesAllowed("ADMIN")
-    public Response payFine(@PathParam(RequestParam.CONTRACT_ID) String contractId, @PathParam(RequestParam.FINE_ID) String fineId) {
-        Contract contract = contractController.payFine(contractId, fineId);
 
         return Response.status(Response.Status.OK).entity(new ContractResponseDto(contract)).build();
     }

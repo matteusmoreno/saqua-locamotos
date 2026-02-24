@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum PaymentType {
     DEPOSIT("Deposit / Caução"),
     WEEKLY("Weekly Payment"),
-    FULL_PAYMENT("Full Payment - 15 days");
+    FULL_PAYMENT("Full Payment - 15 days"),
+    FINE("Fine / Multa");
 
     private final String displayName;
 
@@ -14,4 +15,3 @@ public enum PaymentType {
         this.displayName = displayName;
     }
 }
-

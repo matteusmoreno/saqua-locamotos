@@ -1,16 +1,13 @@
 package br.com.matteusmoreno.domain.service;
 
-import br.com.matteusmoreno.application.exception.FineNotFoundException;
 import br.com.matteusmoreno.application.service.CloudinaryService;
 import br.com.matteusmoreno.domain.constant.CloudinaryFolder;
 import br.com.matteusmoreno.domain.constant.ContractStatus;
 import br.com.matteusmoreno.domain.constant.RentalType;
-import br.com.matteusmoreno.domain.dto.request.AddFineRequestDto;
 import br.com.matteusmoreno.domain.dto.request.CreateContractRequestDto;
 import br.com.matteusmoreno.domain.entity.Contract;
 import br.com.matteusmoreno.domain.entity.Motorcycle;
 import br.com.matteusmoreno.domain.entity.User;
-import br.com.matteusmoreno.domain.model.Fine;
 import br.com.matteusmoreno.domain.repository.ContractRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
@@ -90,46 +87,6 @@ public class ContractService {
     public List<Contract> findContractsByMotorcycleId(String motorcycleId) {
         log.info("Finding contracts for motorcycle: {}", motorcycleId);
         return contractRepository.findContractsByMotorcycleId(motorcycleId);
-    }
-
-    public Contract addFine(AddFineRequestDto request) {
-        Contract contract = contractRepository.findContractById(request.contractId());
-
-        Fine fine = Fine.builder()
-                .amount(request.amount())
-                .reason(request.reason())
-                .createdAt(LocalDateTime.now())
-                .paid(false)
-                .build();
-
-        contract.getFines().add(fine);
-        contract.setStatus(ContractStatus.OVERDUE);
-        contract.setUpdatedAt(LocalDateTime.now());
-        contractRepository.update(contract);
-
-        log.info("Fine added to contract {}: {} - {}", request.contractId(), request.amount(), request.reason());
-        return contract;
-    }
-
-    public Contract payFine(String contractId, String fineId) {
-        Contract contract = contractRepository.findContractById(contractId);
-
-        Fine fine = contract.getFines().stream()
-                .filter(f -> f.getFineId().equals(fineId))
-                .findFirst()
-                .orElseThrow(FineNotFoundException::new);
-
-        fine.setPaid(true);
-        fine.setPaidAt(LocalDateTime.now());
-
-        boolean allFinesPaid = contract.getFines().stream().allMatch(Fine::getPaid);
-        if (allFinesPaid) contract.setStatus(ContractStatus.ACTIVE);
-
-        contract.setUpdatedAt(LocalDateTime.now());
-        contractRepository.update(contract);
-
-        log.info("Fine {} paid for contract {}", fineId, contractId);
-        return contract;
     }
 
     public Contract finishContract(String contractId, Boolean refundDeposit) {

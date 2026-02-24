@@ -1,6 +1,5 @@
 package br.com.matteusmoreno.domain.controller;
 
-import br.com.matteusmoreno.domain.dto.request.AddFineRequestDto;
 import br.com.matteusmoreno.domain.dto.request.CreateContractRequestDto;
 import br.com.matteusmoreno.domain.entity.Contract;
 import br.com.matteusmoreno.domain.service.ContractService;
@@ -35,14 +34,6 @@ public class ContractController {
 
     public List<Contract> findContractsByMotorcycleId(String motorcycleId) {
         return contractService.findContractsByMotorcycleId(motorcycleId);
-    }
-
-    public Contract addFine(AddFineRequestDto request) {
-        return contractService.addFine(request);
-    }
-
-    public Contract payFine(String contractId, String fineId) {
-        return contractService.payFine(contractId, fineId);
     }
 
     public Contract finishContract(String contractId, Boolean refundDeposit) {

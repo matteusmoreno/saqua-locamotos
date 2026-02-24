@@ -13,7 +13,6 @@ public enum Errors {
     DOCUMENT_NOT_FOUND("User does not have the specified document"),
     CONTRACT_NOT_FOUND("Contract not found"),
     PAYMENT_NOT_FOUND("Payment not found"),
-    FINE_NOT_FOUND("Fine not found"),
     UNAUTHORIZED_ACCESS("Access denied");
 
     private final String displayName;
