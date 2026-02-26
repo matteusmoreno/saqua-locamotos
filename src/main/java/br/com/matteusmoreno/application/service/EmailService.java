@@ -6,6 +6,7 @@ import io.quarkus.qute.Location;
 import io.quarkus.qute.Template;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.context.ManagedExecutor;
 
 import java.io.InputStream;
 
@@ -15,38 +16,40 @@ public class EmailService {
 
     private final Template welcomeTemplate;
     private final Template verifyEmailTemplate;
-    private final Mailer mailer;
 
+    private final Mailer mailer;
+    private final ManagedExecutor executor;
 
     public EmailService(
             Mailer mailer,
+            ManagedExecutor executor,
             @Location("emails/welcome.html") Template welcomeTemplate,
             @Location("emails/verify-email.html") Template verifyEmailTemplate) {
         this.mailer = mailer;
+        this.executor = executor;
         this.welcomeTemplate = welcomeTemplate;
         this.verifyEmailTemplate = verifyEmailTemplate;
     }
 
     public void sendWelcomeEmail(String name, String email, String cpf) {
-        log.info("Sending welcome email to: {}", email);
+        this.executor.execute(() -> {
+            log.info("Sending welcome email to: {}", email);
+            try {
+                String htmlBody = welcomeTemplate
+                        .data("name", name)
+                        .data("email", email)
+                        .data("cpf", cpf)
+                        .render();
 
-        String htmlBody = welcomeTemplate
-                .data("name", name)
-                .data("email", email)
-                .data("cpf", cpf)
-                .render();
+                Mail mail = Mail.withHtml(email, "Bem-vindo à Saqua Locamotos! 🏍️", htmlBody)
+                        .addInlineAttachment("logo", loadLogoBytes(), "image/png", "<logo>");
 
-        byte[] logoBytes = loadLogoBytes();
-
-        Mail mail = Mail.withHtml(email, "Bem-vindo à Saqua Locamotos! 🏍️", htmlBody)
-                .addInlineAttachment("logo", logoBytes, "image/png", "<logo>");
-
-        try {
-            this.mailer.send(mail);
-            log.info("Welcome email sent successfully to: {}", email);
-        } catch (Exception e) {
-            log.error("Failed to send welcome email to {}: {}", email, e.getMessage());
-        }
+                this.mailer.send(mail);
+                log.info("Welcome email sent successfully to: {}", email);
+            } catch (Exception e) {
+                log.error("Failed to send welcome email to {}: {}", email, e.getMessage());
+            }
+        });
     }
 
     public void sendVerificationEmail(String name, String email, String token) {
