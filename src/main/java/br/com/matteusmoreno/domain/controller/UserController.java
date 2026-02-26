@@ -1,6 +1,7 @@
 package br.com.matteusmoreno.domain.controller;
 
 import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
+import br.com.matteusmoreno.domain.dto.request.ResetPasswordRequestDto;
 import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
 import br.com.matteusmoreno.domain.entity.User;
 import br.com.matteusmoreno.domain.service.UserService;
@@ -56,5 +57,13 @@ public class UserController {
 
     public void sendVerificationEmail(String userId) {
         this.userService.sendVerificationEmail(userId);
+    }
+
+    public void sendResetPasswordEmail(String email) {
+        this.userService.sendResetPasswordEmail(email);
+    }
+
+    public void resetPassword(ResetPasswordRequestDto request) {
+        this.userService.resetPassword(request);
     }
 }

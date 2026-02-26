@@ -4,13 +4,16 @@ import br.com.matteusmoreno.application.common.RequestParam;
 import br.com.matteusmoreno.domain.controller.ContractController;
 import br.com.matteusmoreno.domain.controller.UserController;
 import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
+import br.com.matteusmoreno.domain.dto.request.ResetPasswordRequestDto;
 import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
 import br.com.matteusmoreno.domain.dto.response.ContractResponseDto;
 import br.com.matteusmoreno.domain.dto.response.UserResponseDto;
 import br.com.matteusmoreno.domain.entity.Contract;
 import br.com.matteusmoreno.domain.entity.User;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -81,12 +84,20 @@ public class UserResource {
         return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
     }
 
+    @POST
+    @Path("/{userId}/send-verification-email")
+    @RolesAllowed({"ADMIN", "CUSTOMER"})
+    public Response sendVerificationEmail(@PathParam(RequestParam.USER_ID) String userId) {
+        this.userController.sendVerificationEmail(userId);
+        return Response.status(Response.Status.OK).build();
+    }
+
     @GET
     @Path("/verify-email")
-    @RolesAllowed({"ADMIN", "CUSTOMER"})
+    @PermitAll
     public Response verifyEmail(@RestQuery("token") String token) {
         if (token == null || token.isBlank()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Token is required").build();
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
         this.userController.verifyEmail(token);
@@ -94,10 +105,18 @@ public class UserResource {
     }
 
     @POST
-    @Path("/{userId}/send-verification-email")
-    @RolesAllowed({"ADMIN", "CUSTOMER"})
-    public Response sendVerificationEmail(@PathParam(RequestParam.USER_ID) String userId) {
-        this.userController.sendVerificationEmail(userId);
+    @Path("/send-reset-password-email")
+    @PermitAll
+    public Response sendResetPasswordEmail(@RestQuery(RequestParam.EMAIL) @NotBlank(message = "Email is required") String email) {
+        this.userController.sendResetPasswordEmail(email);
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @POST
+    @Path("/reset-password")
+    @PermitAll
+    public Response resetPassword(@Valid ResetPasswordRequestDto request) {
+        this.userController.resetPassword(request);
         return Response.status(Response.Status.OK).build();
     }
 

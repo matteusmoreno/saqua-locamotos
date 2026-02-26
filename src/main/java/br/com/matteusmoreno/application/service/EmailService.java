@@ -16,6 +16,7 @@ public class EmailService {
 
     private final Template welcomeTemplate;
     private final Template verifyEmailTemplate;
+    private final Template resetPasswordTemplate;
 
     private final Mailer mailer;
     private final ManagedExecutor executor;
@@ -24,11 +25,13 @@ public class EmailService {
             Mailer mailer,
             ManagedExecutor executor,
             @Location("emails/welcome.html") Template welcomeTemplate,
-            @Location("emails/verify-email.html") Template verifyEmailTemplate) {
+            @Location("emails/verify-email.html") Template verifyEmailTemplate,
+            @Location("emails/reset-password.html") Template resetPasswordTemplate) {
         this.mailer = mailer;
         this.executor = executor;
         this.welcomeTemplate = welcomeTemplate;
         this.verifyEmailTemplate = verifyEmailTemplate;
+        this.resetPasswordTemplate = resetPasswordTemplate;
     }
 
     public void sendWelcomeEmail(String name, String email, String cpf) {
@@ -70,6 +73,28 @@ public class EmailService {
             log.info("Verification email sent successfully to: {}", email);
         } catch (Exception e) {
             log.error("Failed to send verification email to {}: {}", email, e.getMessage());
+        }
+    }
+
+    public void sendResetPasswordEmail(String name, String email, String token) {
+        log.info("Sending password reset email to: {}", email);
+
+        String htmlBody = this.resetPasswordTemplate
+                .data("name", name)
+                .data("token", token)
+                .render();
+
+        byte[] logoBytes = loadLogoBytes();
+
+        Mail mail = Mail.withHtml(email, "Redefinição de senha — Saqua Locamotos 🔐", htmlBody)
+                .addInlineAttachment("logo", logoBytes, "image/png", "<logo>");
+
+        try {
+            this.mailer.send(mail);
+            log.info("Password reset email sent successfully to: {}", email);
+        } catch (Exception e) {
+            log.error("Failed to send password reset email to {}: {}", email, e.getMessage());
+            throw new RuntimeException("Failed to send password reset email", e);
         }
     }
 

@@ -15,7 +15,9 @@ public enum Errors {
     PAYMENT_NOT_FOUND("Payment not found"),
     UNAUTHORIZED_ACCESS("Access denied"),
     INVALID_EMAIL_TOKEN("Invalid or expired email verification token"),
-    EMAIL_ALREADY_VERIFIED("Email is already verified");
+    INVALID_PASSWORD_RESET_TOKEN("Invalid or expired password reset token"),
+    EMAIL_ALREADY_VERIFIED("Email is already verified"),
+    EMAIL_NOT_VERIFIED("Email is not verified");
 
     private final String displayName;
 

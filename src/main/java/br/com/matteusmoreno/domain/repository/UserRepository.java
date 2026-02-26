@@ -1,6 +1,7 @@
 package br.com.matteusmoreno.domain.repository;
 
 import br.com.matteusmoreno.application.exception.InvalidEmailTokenException;
+import br.com.matteusmoreno.application.exception.InvalidPasswordResetTokenException;
 import br.com.matteusmoreno.application.exception.UserNotFoundException;
 import br.com.matteusmoreno.domain.constant.UserRole;
 import br.com.matteusmoreno.domain.entity.User;
@@ -32,5 +33,10 @@ public class UserRepository implements PanacheMongoRepositoryBase<User, String> 
     public User findByEmailVerificationToken(String token) {
         return find("emailVerificationToken", token).firstResultOptional()
                 .orElseThrow(InvalidEmailTokenException::new);
+    }
+
+    public User findByPasswordResetToken(String token) {
+        return find("passwordResetToken", token).firstResultOptional()
+                .orElseThrow(InvalidPasswordResetTokenException::new);
     }
 }

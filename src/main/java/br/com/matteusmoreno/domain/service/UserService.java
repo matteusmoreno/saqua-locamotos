@@ -6,6 +6,7 @@ import br.com.matteusmoreno.application.service.EmailService;
 import br.com.matteusmoreno.domain.constant.CloudinaryFolder;
 import br.com.matteusmoreno.domain.constant.UserRole;
 import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
+import br.com.matteusmoreno.domain.dto.request.ResetPasswordRequestDto;
 import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
 import br.com.matteusmoreno.domain.entity.User;
 import br.com.matteusmoreno.domain.model.Address;
@@ -120,6 +121,35 @@ public class UserService {
         log.info("Email verified successfully for user: {}", user.getUserId());
     }
 
+    public void sendResetPasswordEmail(String email) {
+        log.info("Sending password reset email to: {}", email);
+
+        User user = this.findUserByEmail(email);
+        this.validateIfUserHasEmailVerified(user);
+
+        String token = UUID.randomUUID().toString();
+        user.setPasswordResetToken(token);
+        user.setUpdatedAt(LocalDateTime.now());
+        this.userRepository.update(user);
+
+        this.emailService.sendResetPasswordEmail(user.getName(), user.getEmail(), token);
+        log.info("Password reset email sent for user: {}", user.getUserId());
+    }
+
+    public void resetPassword(ResetPasswordRequestDto request) {
+        log.info("Resetting password with token: {}", request.token());
+
+        User user = this.userRepository.findByPasswordResetToken(request.token());
+
+        String newPasswordHash = this.passwordService.encryptPassword(request.newPassword());
+        user.setPassword(newPasswordHash);
+        user.setPasswordResetToken(null);
+        user.setUpdatedAt(LocalDateTime.now());
+        this.userRepository.update(user);
+
+        log.info("Password reset successfully for user: {}", user.getUserId());
+    }
+
     public User uploadPicture(String userId, byte[] fileBytes) {
         User user = this.findUserById(userId);
         LocalDateTime now = LocalDateTime.now();
@@ -232,7 +262,6 @@ public class UserService {
         return user;
     }
 
-
     protected void validateOwnership(String userId) {
         boolean isAdmin = jwt.getGroups().contains("ADMIN");
         if (!isAdmin && !jwt.getSubject().equals(userId)) {
@@ -279,6 +308,15 @@ public class UserService {
             String path = this.uriInfo.getPath();
             this.errorService.saveUserErrorInfo(user, new EmailAlreadyVerifiedException(), path);
             throw new EmailAlreadyVerifiedException();
+        }
+    }
+
+    protected void validateIfUserHasEmailVerified(User user) {
+        if (Boolean.FALSE.equals(user.getEmailVerified())) {
+            log.warn("Email not verified for user: {}", user.getUserId());
+            String path = this.uriInfo.getPath();
+            this.errorService.saveUserErrorInfo(user, new EmailNotVerifiedException(), path);
+            throw new EmailNotVerifiedException();
         }
     }
 }
