@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Bem-vindo à Saqua Locamotos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #333333;
+        }
+
+        .wrapper {
+            width: 100%;
+            background-color: #f4f4f4;
+            padding: 30px 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        /* ─── Header ─── */
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+            padding: 36px 40px;
+            text-align: center;
+        }
+
+        .header img {
+            height: 80px;
+            width: auto;
+        }
+
+        .header-tagline {
+            margin-top: 12px;
+            color: #e0b84a;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* ─── Hero Banner ─── */
+        .hero {
+            background: linear-gradient(135deg, #e0b84a 0%, #f0c84a 100%);
+            padding: 32px 40px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #1a1a2e;
+            line-height: 1.3;
+        }
+
+        .hero p {
+            margin-top: 8px;
+            font-size: 15px;
+            color: #2c2c3e;
+            font-weight: 500;
+        }
+
+        /* ─── Body ─── */
+        .body {
+            padding: 36px 40px;
+        }
+
+        .greeting {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .greeting strong {
+            color: #0f3460;
+        }
+
+        /* ─── Credentials Box ─── */
+        .credentials-box {
+            background: #f8f9fc;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #e0b84a;
+            border-radius: 8px;
+            padding: 24px 28px;
+            margin: 28px 0;
+        }
+
+        .credentials-box h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #6b7280;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .credential-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .credential-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .credential-icon {
+            width: 36px;
+            height: 36px;
+            background: #e0b84a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 14px;
+            flex-shrink: 0;
+            font-size: 16px;
+            text-align: center;
+            line-height: 36px;
+        }
+
+        .credential-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9ca3af;
+            font-weight: 600;
+        }
+
+        .credential-value {
+            font-size: 15px;
+            color: #1a1a2e;
+            font-weight: 700;
+            margin-top: 2px;
+            word-break: break-all;
+        }
+
+        /* ─── Info Cards ─── */
+        .info-grid {
+            display: flex;
+            gap: 16px;
+            margin: 28px 0;
+        }
+
+        .info-card {
+            flex: 1;
+            background: #f8f9fc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 18px 16px;
+            text-align: center;
+        }
+
+        .info-card .icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .info-card h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6b7280;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .info-card p {
+            font-size: 12px;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        /* ─── CTA Button ─── */
+        .cta-wrapper {
+            text-align: center;
+            margin: 32px 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            color: #e0b84a !important;
+            text-decoration: none;
+            padding: 14px 40px;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* ─── Alert Box ─── */
+        .alert-box {
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 24px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .alert-box .alert-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .alert-box p {
+            font-size: 13px;
+            color: #92400e;
+            line-height: 1.5;
+        }
+
+        .alert-box p strong {
+            color: #78350f;
+        }
+
+        /* ─── Footer ─── */
+        .footer {
+            background: #1a1a2e;
+            padding: 28px 40px;
+            text-align: center;
+        }
+
+        .footer-brand {
+            color: #e0b84a;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .footer-info {
+            color: #9ca3af;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .footer-info a {
+            color: #e0b84a;
+            text-decoration: none;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 24px 0;
+        }
+
+        .footer-legal {
+            margin-top: 16px;
+            color: #6b7280;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div class="container">
+
+        <!-- Header -->
+        <div class="header">
+            <img src="cid:logo" alt="Saqua Locamotos"/>
+            <div class="header-tagline">Sua liberdade sobre duas rodas</div>
+        </div>
+
+        <!-- Hero -->
+        <div class="hero">
+            <h1>🏍️ Bem-vindo à Saqua Locamotos!</h1>
+            <p>Estamos felizes em ter você como nosso cliente.</p>
+        </div>
+
+        <!-- Body -->
+        <div class="body">
+
+            <p class="greeting">
+                Olá, <strong>{name}</strong>! 👋<br/><br/>
+                Seu cadastro foi realizado com sucesso na plataforma da
+                <strong>Saqua Locamotos</strong>. A partir de agora, você tem acesso à nossa área
+                exclusiva de clientes, onde pode acompanhar seus contratos, pagamentos e muito mais.
+            </p>
+
+            <!-- Credentials -->
+            <div class="credentials-box">
+                <h2>🔐 Suas Credenciais de Acesso</h2>
+
+                <div class="credential-item">
+                    <div class="credential-icon">📧</div>
+                    <div>
+                        <div class="credential-label">E-mail</div>
+                        <div class="credential-value">{email}</div>
+                    </div>
+                </div>
+
+                <div class="credential-item">
+                    <div class="credential-icon">🔑</div>
+                    <div>
+                        <div class="credential-label">Senha Inicial</div>
+                        <div class="credential-value">{cpf}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert -->
+            <div class="alert-box">
+                <div class="alert-icon">⚠️</div>
+                <p>
+                    <strong>Importante:</strong> Sua senha inicial é o seu <strong>CPF</strong>
+                    (com pontos e hífen, ex.: <em>123.456.789-00</em>).
+                    Por segurança, recomendamos que você a altere assim que realizar seu primeiro acesso.
+                </p>
+            </div>
+
+            <!-- Info Cards -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">📋</div>
+                    <h3>Contratos</h3>
+                    <p>Visualize e acompanhe todos os seus contratos de locação.</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">💳</div>
+                    <h3>Pagamentos</h3>
+                    <p>Acompanhe o histórico e status de todos os seus pagamentos.</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🏍️</div>
+                    <h3>Motos</h3>
+                    <p>Consulte informações sobre as motos disponíveis e as que estão em uso.</p>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <p class="greeting" style="font-size: 14px; color: #6b7280;">
+                Em caso de dúvidas ou problemas com o seu acesso, entre em contato com nossa equipe.
+                Estamos sempre prontos para ajudar!
+            </p>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-brand">SAQUA LOCAMOTOS</div>
+            <div class="footer-info">
+                Rua Moacir Picanço, 21 — Bacaxá, Saquarema - RJ, CEP: 28994-666<br/>
+                📞 <a href="tel:+5522998223307">(22) 99822-3307</a> &nbsp;|&nbsp;
+                ✉️ <a href="mailto:relacionamento@saqualocamotos.com.br">relacionamento@saqualocamotos.com.br</a>
+            </div>
+            <div class="footer-legal">
+                Este e-mail foi enviado automaticamente pelo sistema da Saqua Locamotos.<br/>
+                Por favor, não responda diretamente a esta mensagem.
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
+

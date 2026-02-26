@@ -5,6 +5,7 @@ import br.com.matteusmoreno.application.exception.PictureNotFoundException;
 import br.com.matteusmoreno.application.exception.UnauthorizedAccessException;
 import br.com.matteusmoreno.application.exception.UserAlreadyExistsException;
 import br.com.matteusmoreno.application.service.CloudinaryService;
+import br.com.matteusmoreno.application.service.EmailService;
 import br.com.matteusmoreno.domain.constant.CloudinaryFolder;
 import br.com.matteusmoreno.domain.constant.UserRole;
 import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
@@ -29,13 +30,15 @@ public class UserService {
     private final AddressService addressService;
     private final PasswordService passwordService;
     private final CloudinaryService cloudinaryService;
+    private final EmailService emailService;
     private final JsonWebToken jwt;
 
-    public UserService(UserRepository userRepository, AddressService addressService, PasswordService passwordService, CloudinaryService cloudinaryService, JsonWebToken jwt) {
+    public UserService(UserRepository userRepository, AddressService addressService, PasswordService passwordService, CloudinaryService cloudinaryService, EmailService emailService, JsonWebToken jwt) {
         this.userRepository = userRepository;
         this.addressService = addressService;
         this.passwordService = passwordService;
         this.cloudinaryService = cloudinaryService;
+        this.emailService = emailService;
         this.jwt = jwt;
     }
 
@@ -66,6 +69,8 @@ public class UserService {
 
         this.userRepository.persist(user);
         log.info("Customer created with ID: {}", user.getUserId());
+
+        this.emailService.sendWelcomeEmail(user.getName(), user.getEmail(), user.getCpf());
 
         return user;
     }
