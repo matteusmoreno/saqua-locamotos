@@ -284,6 +284,10 @@ public class UserService {
         user.setUpdatedAt(now);
 
         this.userRepository.update(user);
+
+        String changedAt = now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm:ss"));
+        this.emailService.sendPasswordChangedEmail(user.getName(), user.getEmail(), changedAt);
+
         log.info("Password updated for user ID: {}", request.userId());
     }
 
