@@ -14,13 +14,17 @@ import java.io.InputStream;
 public class EmailService {
 
     private final Template welcomeTemplate;
+    private final Template verifyEmailTemplate;
     private final Mailer mailer;
+
 
     public EmailService(
             Mailer mailer,
-            @Location("emails/welcome.html") Template welcomeTemplate) {
+            @Location("emails/welcome.html") Template welcomeTemplate,
+            @Location("emails/verify-email.html") Template verifyEmailTemplate) {
         this.mailer = mailer;
         this.welcomeTemplate = welcomeTemplate;
+        this.verifyEmailTemplate = verifyEmailTemplate;
     }
 
     public void sendWelcomeEmail(String name, String email, String cpf) {
@@ -34,18 +38,35 @@ public class EmailService {
 
         byte[] logoBytes = loadLogoBytes();
 
-        Mail mail = Mail.withHtml(
-                        email,
-                        "Bem-vindo à Saqua Locamotos! 🏍️",
-                        htmlBody
-                )
+        Mail mail = Mail.withHtml(email, "Bem-vindo à Saqua Locamotos! 🏍️", htmlBody)
                 .addInlineAttachment("logo", logoBytes, "image/png", "<logo>");
 
         try {
-            mailer.send(mail);
+            this.mailer.send(mail);
             log.info("Welcome email sent successfully to: {}", email);
         } catch (Exception e) {
             log.error("Failed to send welcome email to {}: {}", email, e.getMessage());
+        }
+    }
+
+    public void sendVerificationEmail(String name, String email, String token) {
+        log.info("Sending verification email to: {}", email);
+
+        String htmlBody = this.verifyEmailTemplate
+                .data("name", name)
+                .data("token", token)
+                .render();
+
+        byte[] logoBytes = loadLogoBytes();
+
+        Mail mail = Mail.withHtml(email, "Confirme seu e-mail — Saqua Locamotos ✉️", htmlBody)
+                .addInlineAttachment("logo", logoBytes, "image/png", "<logo>");
+
+        try {
+            this.mailer.send(mail);
+            log.info("Verification email sent successfully to: {}", email);
+        } catch (Exception e) {
+            log.error("Failed to send verification email to {}: {}", email, e.getMessage());
         }
     }
 

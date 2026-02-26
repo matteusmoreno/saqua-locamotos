@@ -81,6 +81,26 @@ public class UserResource {
         return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
     }
 
+    @GET
+    @Path("/verify-email")
+    @RolesAllowed({"ADMIN", "CUSTOMER"})
+    public Response verifyEmail(@RestQuery("token") String token) {
+        if (token == null || token.isBlank()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Token is required").build();
+        }
+
+        this.userController.verifyEmail(token);
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @POST
+    @Path("/{userId}/send-verification-email")
+    @RolesAllowed({"ADMIN", "CUSTOMER"})
+    public Response sendVerificationEmail(@PathParam(RequestParam.USER_ID) String userId) {
+        this.userController.sendVerificationEmail(userId);
+        return Response.status(Response.Status.OK).build();
+    }
+
     @POST
     @Path("/{userId}/upload-picture")
     @RolesAllowed("ADMIN")

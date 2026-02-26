@@ -28,6 +28,7 @@ public class User {
     private String name;
     private String email;
     private Boolean emailVerified;
+    private String emailVerificationToken;
     private String password;
     private String phone;
     private String cpf;

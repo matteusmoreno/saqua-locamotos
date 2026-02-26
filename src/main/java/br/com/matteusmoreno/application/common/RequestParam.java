@@ -1,5 +1,7 @@
 package br.com.matteusmoreno.application.common;
 
+import jakarta.ws.rs.PUT;
+
 public class RequestParam {
 
     public static final String USER_ID = "userId";
@@ -12,6 +14,7 @@ public class RequestParam {
     public static final String NUMBER = "number";
     public static final String COMPLEMENT = "complement";
     public static final String FILE = "file";
+    public static final String TOKEN = "token";
 
     private RequestParam(){}
 

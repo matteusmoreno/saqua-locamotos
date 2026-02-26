@@ -49,4 +49,12 @@ public class UserController {
     public User updateUser(UpdateUserRequestDto request) {
         return this.userService.updateUser(request);
     }
+
+    public void verifyEmail(String token) {
+        this.userService.verifyEmail(token);
+    }
+
+    public void sendVerificationEmail(String userId) {
+        this.userService.sendVerificationEmail(userId);
+    }
 }

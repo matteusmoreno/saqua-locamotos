@@ -1,5 +1,6 @@
 package br.com.matteusmoreno.domain.repository;
 
+import br.com.matteusmoreno.application.exception.InvalidEmailTokenException;
 import br.com.matteusmoreno.application.exception.UserNotFoundException;
 import br.com.matteusmoreno.domain.constant.UserRole;
 import br.com.matteusmoreno.domain.entity.User;
@@ -26,5 +27,10 @@ public class UserRepository implements PanacheMongoRepositoryBase<User, String> 
     public User findUserByEmail(String email) {
         return find("email", email).firstResultOptional()
                 .orElseThrow(UserNotFoundException::new);
+    }
+
+    public User findByEmailVerificationToken(String token) {
+        return find("emailVerificationToken", token).firstResultOptional()
+                .orElseThrow(InvalidEmailTokenException::new);
     }
 }

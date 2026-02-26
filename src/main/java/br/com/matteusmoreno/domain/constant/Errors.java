@@ -13,7 +13,9 @@ public enum Errors {
     DOCUMENT_NOT_FOUND("User does not have the specified document"),
     CONTRACT_NOT_FOUND("Contract not found"),
     PAYMENT_NOT_FOUND("Payment not found"),
-    UNAUTHORIZED_ACCESS("Access denied");
+    UNAUTHORIZED_ACCESS("Access denied"),
+    INVALID_EMAIL_TOKEN("Invalid or expired email verification token"),
+    EMAIL_ALREADY_VERIFIED("Email is already verified");
 
     private final String displayName;
 

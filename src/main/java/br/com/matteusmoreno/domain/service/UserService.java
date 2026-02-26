@@ -1,9 +1,6 @@
 package br.com.matteusmoreno.domain.service;
 
-import br.com.matteusmoreno.application.exception.DocumentNotFoundException;
-import br.com.matteusmoreno.application.exception.PictureNotFoundException;
-import br.com.matteusmoreno.application.exception.UnauthorizedAccessException;
-import br.com.matteusmoreno.application.exception.UserAlreadyExistsException;
+import br.com.matteusmoreno.application.exception.*;
 import br.com.matteusmoreno.application.service.CloudinaryService;
 import br.com.matteusmoreno.application.service.EmailService;
 import br.com.matteusmoreno.domain.constant.CloudinaryFolder;
@@ -15,12 +12,14 @@ import br.com.matteusmoreno.domain.model.Address;
 import br.com.matteusmoreno.domain.model.UserDocument;
 import br.com.matteusmoreno.domain.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @ApplicationScoped
 @Slf4j
@@ -32,14 +31,18 @@ public class UserService {
     private final CloudinaryService cloudinaryService;
     private final EmailService emailService;
     private final JsonWebToken jwt;
+    private final ErrorService errorService;
+    private final UriInfo uriInfo;
 
-    public UserService(UserRepository userRepository, AddressService addressService, PasswordService passwordService, CloudinaryService cloudinaryService, EmailService emailService, JsonWebToken jwt) {
+    public UserService(UserRepository userRepository, AddressService addressService, PasswordService passwordService, CloudinaryService cloudinaryService, EmailService emailService, JsonWebToken jwt, ErrorService errorService, UriInfo uriInfo) {
         this.userRepository = userRepository;
         this.addressService = addressService;
         this.passwordService = passwordService;
         this.cloudinaryService = cloudinaryService;
         this.emailService = emailService;
         this.jwt = jwt;
+        this.errorService = errorService;
+        this.uriInfo = uriInfo;
     }
 
     public User createCustomer(CreateUserRequestDto request) {
@@ -47,7 +50,6 @@ public class UserService {
         Address address = this.addressService.getAddress(request.address());
         String passwordHash = this.passwordService.encryptPassword(request.cpf());
         LocalDateTime now = LocalDateTime.now();
-
 
         log.info("Creating customer with email: {}", request.email());
         User user = User.builder()
@@ -88,6 +90,34 @@ public class UserService {
     public User findUserByEmail(String email) {
         log.info("Finding user with email: {}", email);
         return this.userRepository.findUserByEmail(email);
+    }
+
+    public void sendVerificationEmail(String userId) {
+        this.validateOwnership(userId);
+
+        User user = this.findUserById(userId);
+        this.validateIfEmailAlreadyVerified(user);
+
+        String token = UUID.randomUUID().toString();
+        user.setEmailVerificationToken(token);
+        user.setUpdatedAt(LocalDateTime.now());
+        this.userRepository.update(user);
+
+        this.emailService.sendVerificationEmail(user.getName(), user.getEmail(), token);
+        log.info("Verification email sent for user: {}", userId);
+    }
+
+    public void verifyEmail(String token) {
+        log.info("Verifying email with token: {}", token);
+
+        User user = this.userRepository.findByEmailVerificationToken(token);
+
+        user.setEmailVerified(true);
+        user.setEmailVerificationToken(null);
+        user.setUpdatedAt(LocalDateTime.now());
+        this.userRepository.update(user);
+
+        log.info("Email verified successfully for user: {}", user.getUserId());
     }
 
     public User uploadPicture(String userId, byte[] fileBytes) {
@@ -177,30 +207,6 @@ public class UserService {
         return user;
     }
 
-    private String getDocumentUrl(User user, String documentType) {
-        return switch (documentType) {
-            case "cnh" -> user.getDocuments().getCnh();
-            case "cpf" -> user.getDocuments().getCpfUrl();
-            case "rg" -> user.getDocuments().getRgUrl();
-            case "proof_of_residence" -> user.getDocuments().getProofOfResidenceUrl();
-            case "criminal_record" -> user.getDocuments().getCriminalRecordUrl();
-            case "passport" -> user.getDocuments().getPassportUrl();
-            default -> throw new IllegalArgumentException("Invalid document type: " + documentType);
-        };
-    }
-
-    private void setDocumentUrl(User user, String documentType, String url) {
-        switch (documentType) {
-            case "cnh" -> user.getDocuments().setCnh(url);
-            case "cpf" -> user.getDocuments().setCpfUrl(url);
-            case "rg" -> user.getDocuments().setRgUrl(url);
-            case "proof_of_residence" -> user.getDocuments().setProofOfResidenceUrl(url);
-            case "criminal_record" -> user.getDocuments().setCriminalRecordUrl(url);
-            case "passport" -> user.getDocuments().setPassportUrl(url);
-            default -> throw new IllegalArgumentException("Invalid document type: " + documentType);
-        }
-    }
-
     public User updateUser(UpdateUserRequestDto request) {
         log.info("Updating user with ID: {}", request.userId());
         User user = this.findUserById(request.userId());
@@ -227,11 +233,35 @@ public class UserService {
     }
 
 
-    private void validateOwnership(String userId) {
+    protected void validateOwnership(String userId) {
         boolean isAdmin = jwt.getGroups().contains("ADMIN");
         if (!isAdmin && !jwt.getSubject().equals(userId)) {
             log.warn("Access denied: caller {} tried to access user {}", jwt.getSubject(), userId);
             throw new UnauthorizedAccessException();
+        }
+    }
+
+    protected String getDocumentUrl(User user, String documentType) {
+        return switch (documentType) {
+            case "cnh" -> user.getDocuments().getCnh();
+            case "cpf" -> user.getDocuments().getCpfUrl();
+            case "rg" -> user.getDocuments().getRgUrl();
+            case "proof_of_residence" -> user.getDocuments().getProofOfResidenceUrl();
+            case "criminal_record" -> user.getDocuments().getCriminalRecordUrl();
+            case "passport" -> user.getDocuments().getPassportUrl();
+            default -> throw new IllegalArgumentException("Invalid document type: " + documentType);
+        };
+    }
+
+    protected void setDocumentUrl(User user, String documentType, String url) {
+        switch (documentType) {
+            case "cnh" -> user.getDocuments().setCnh(url);
+            case "cpf" -> user.getDocuments().setCpfUrl(url);
+            case "rg" -> user.getDocuments().setRgUrl(url);
+            case "proof_of_residence" -> user.getDocuments().setProofOfResidenceUrl(url);
+            case "criminal_record" -> user.getDocuments().setCriminalRecordUrl(url);
+            case "passport" -> user.getDocuments().setPassportUrl(url);
+            default -> throw new IllegalArgumentException("Invalid document type: " + documentType);
         }
     }
 
@@ -241,5 +271,14 @@ public class UserService {
         if (this.userRepository.find("cpf", cpf).firstResult() != null) throw new UserAlreadyExistsException("CPF");
         if (this.userRepository.find("rg", rg).firstResult() != null) throw new UserAlreadyExistsException("RG");
         if (this.userRepository.find("phone", phone).firstResult() != null) throw new UserAlreadyExistsException("Phone");
+    }
+
+    protected void validateIfEmailAlreadyVerified(User user) {
+        if (Boolean.TRUE.equals(user.getEmailVerified())) {
+            log.warn("Email already verified for user: {}", user.getUserId());
+            String path = this.uriInfo.getPath();
+            this.errorService.saveUserErrorInfo(user, new EmailAlreadyVerifiedException(), path);
+            throw new EmailAlreadyVerifiedException();
+        }
     }
 }
