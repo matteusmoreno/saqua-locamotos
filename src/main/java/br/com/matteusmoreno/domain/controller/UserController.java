@@ -2,6 +2,7 @@ package br.com.matteusmoreno.domain.controller;
 
 import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
 import br.com.matteusmoreno.domain.dto.request.ResetPasswordRequestDto;
+import br.com.matteusmoreno.domain.dto.request.UpdatePasswordRequestDto;
 import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
 import br.com.matteusmoreno.domain.entity.User;
 import br.com.matteusmoreno.domain.service.UserService;
@@ -49,6 +50,10 @@ public class UserController {
 
     public User updateUser(UpdateUserRequestDto request) {
         return this.userService.updateUser(request);
+    }
+
+    public void updatePassword(UpdatePasswordRequestDto request) {
+        this.userService.updatePassword(request);
     }
 
     public void verifyEmail(String token) {

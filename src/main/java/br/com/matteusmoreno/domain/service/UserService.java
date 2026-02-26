@@ -3,10 +3,12 @@ package br.com.matteusmoreno.domain.service;
 import br.com.matteusmoreno.application.exception.*;
 import br.com.matteusmoreno.application.service.CloudinaryService;
 import br.com.matteusmoreno.application.service.EmailService;
+import br.com.matteusmoreno.application.utils.DateUtils;
 import br.com.matteusmoreno.domain.constant.CloudinaryFolder;
 import br.com.matteusmoreno.domain.constant.UserRole;
 import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
 import br.com.matteusmoreno.domain.dto.request.ResetPasswordRequestDto;
+import br.com.matteusmoreno.domain.dto.request.UpdatePasswordRequestDto;
 import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
 import br.com.matteusmoreno.domain.entity.User;
 import br.com.matteusmoreno.domain.model.Address;
@@ -18,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -34,8 +37,9 @@ public class UserService {
     private final JsonWebToken jwt;
     private final ErrorService errorService;
     private final UriInfo uriInfo;
+    private final DateUtils dateUtils;
 
-    public UserService(UserRepository userRepository, AddressService addressService, PasswordService passwordService, CloudinaryService cloudinaryService, EmailService emailService, JsonWebToken jwt, ErrorService errorService, UriInfo uriInfo) {
+    public UserService(UserRepository userRepository, AddressService addressService, PasswordService passwordService, CloudinaryService cloudinaryService, EmailService emailService, JsonWebToken jwt, ErrorService errorService, UriInfo uriInfo, DateUtils dateUtils) {
         this.userRepository = userRepository;
         this.addressService = addressService;
         this.passwordService = passwordService;
@@ -44,6 +48,7 @@ public class UserService {
         this.jwt = jwt;
         this.errorService = errorService;
         this.uriInfo = uriInfo;
+        this.dateUtils = dateUtils;
     }
 
     public User createCustomer(CreateUserRequestDto request) {
@@ -141,11 +146,15 @@ public class UserService {
 
         User user = this.userRepository.findByPasswordResetToken(request.token());
 
+        LocalDateTime now = LocalDateTime.now();
         String newPasswordHash = this.passwordService.encryptPassword(request.newPassword());
         user.setPassword(newPasswordHash);
         user.setPasswordResetToken(null);
-        user.setUpdatedAt(LocalDateTime.now());
+        user.setUpdatedAt(now);
         this.userRepository.update(user);
+
+        String changedAt = now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm:ss"));
+        this.emailService.sendPasswordChangedEmail(user.getName(), user.getEmail(), changedAt);
 
         log.info("Password reset successfully for user: {}", user.getUserId());
     }
@@ -262,6 +271,22 @@ public class UserService {
         return user;
     }
 
+    public void updatePassword(UpdatePasswordRequestDto request) {
+        log.info("Updating password for user ID: {}", request.userId());
+        this.validateOwnership(request.userId());
+
+        User user = this.findUserById(request.userId());
+        this.validateCurrentPassword(user, request.currentPassword());
+
+        LocalDateTime now = this.dateUtils.now();
+        String newPasswordHash = this.passwordService.encryptPassword(request.newPassword());
+        user.setPassword(newPasswordHash);
+        user.setUpdatedAt(now);
+
+        this.userRepository.update(user);
+        log.info("Password updated for user ID: {}", request.userId());
+    }
+
     protected void validateOwnership(String userId) {
         boolean isAdmin = jwt.getGroups().contains("ADMIN");
         if (!isAdmin && !jwt.getSubject().equals(userId)) {
@@ -317,6 +342,15 @@ public class UserService {
             String path = this.uriInfo.getPath();
             this.errorService.saveUserErrorInfo(user, new EmailNotVerifiedException(), path);
             throw new EmailNotVerifiedException();
+        }
+    }
+
+    protected void validateCurrentPassword(User user, String currentPassword) {
+        if (!this.passwordService.verifyPassword(currentPassword, user.getPassword())) {
+            log.warn("Invalid current password for user: {}", user.getUserId());
+            String path = this.uriInfo.getPath();
+            this.errorService.saveUserErrorInfo(user, new InvalidCurrentPasswordException(), path);
+            throw new InvalidCurrentPasswordException();
         }
     }
 }

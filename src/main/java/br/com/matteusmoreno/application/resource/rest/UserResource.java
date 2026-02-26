@@ -5,6 +5,7 @@ import br.com.matteusmoreno.domain.controller.ContractController;
 import br.com.matteusmoreno.domain.controller.UserController;
 import br.com.matteusmoreno.domain.dto.request.CreateUserRequestDto;
 import br.com.matteusmoreno.domain.dto.request.ResetPasswordRequestDto;
+import br.com.matteusmoreno.domain.dto.request.UpdatePasswordRequestDto;
 import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
 import br.com.matteusmoreno.domain.dto.response.ContractResponseDto;
 import br.com.matteusmoreno.domain.dto.response.UserResponseDto;
@@ -82,6 +83,14 @@ public class UserResource {
         User user = this.userController.updateUser(request);
 
         return Response.status(Response.Status.OK).entity(new UserResponseDto(user)).build();
+    }
+
+    @PATCH
+    @Path("/update-password")
+    @RolesAllowed({"ADMIN", "CUSTOMER"})
+    public Response updatePassword(@Valid UpdatePasswordRequestDto request) {
+        this.userController.updatePassword(request);
+        return Response.status(Response.Status.OK).build();
     }
 
     @POST

@@ -17,6 +17,7 @@ public class EmailService {
     private final Template welcomeTemplate;
     private final Template verifyEmailTemplate;
     private final Template resetPasswordTemplate;
+    private final Template passwordChangedTemplate;
 
     private final Mailer mailer;
     private final ManagedExecutor executor;
@@ -26,12 +27,14 @@ public class EmailService {
             ManagedExecutor executor,
             @Location("emails/welcome.html") Template welcomeTemplate,
             @Location("emails/verify-email.html") Template verifyEmailTemplate,
-            @Location("emails/reset-password.html") Template resetPasswordTemplate) {
+            @Location("emails/reset-password.html") Template resetPasswordTemplate,
+            @Location("emails/password-changed.html") Template passwordChangedTemplate) {
         this.mailer = mailer;
         this.executor = executor;
         this.welcomeTemplate = welcomeTemplate;
         this.verifyEmailTemplate = verifyEmailTemplate;
         this.resetPasswordTemplate = resetPasswordTemplate;
+        this.passwordChangedTemplate = passwordChangedTemplate;
     }
 
     public void sendWelcomeEmail(String name, String email, String cpf) {
@@ -95,6 +98,28 @@ public class EmailService {
         } catch (Exception e) {
             log.error("Failed to send password reset email to {}: {}", email, e.getMessage());
             throw new RuntimeException("Failed to send password reset email", e);
+        }
+    }
+
+    public void sendPasswordChangedEmail(String name, String email, String changedAt) {
+        log.info("Sending password changed confirmation email to: {}", email);
+
+        String htmlBody = this.passwordChangedTemplate
+                .data("name", name)
+                .data("email", email)
+                .data("changedAt", changedAt)
+                .render();
+
+        byte[] logoBytes = loadLogoBytes();
+
+        Mail mail = Mail.withHtml(email, "Sua senha foi alterada — Saqua Locamotos 🔐", htmlBody)
+                .addInlineAttachment("logo", logoBytes, "image/png", "<logo>");
+
+        try {
+            this.mailer.send(mail);
+            log.info("Password changed email sent successfully to: {}", email);
+        } catch (Exception e) {
+            log.error("Failed to send password changed email to {}: {}", email, e.getMessage());
         }
     }
 

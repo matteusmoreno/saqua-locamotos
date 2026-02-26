@@ -12,4 +12,10 @@ public class PasswordService {
         log.info("Encrypting password");
         return BCrypt.withDefaults().hashToString(12, password.toCharArray());
     }
+
+    public boolean verifyPassword(String password, String hashedPassword) {
+        log.info("Verifying password");
+        BCrypt.Result result = BCrypt.verifyer().verify(password.toCharArray(), hashedPassword);
+        return result.verified;
+    }
 }
