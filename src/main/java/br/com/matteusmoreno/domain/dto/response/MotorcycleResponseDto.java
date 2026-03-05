@@ -14,7 +14,8 @@ public record MotorcycleResponseDto(
         String documentUrl,
         Integer mileage,
         Boolean available,
-        Boolean active
+        Boolean active,
+        FinancialResponseDto financial
 ) {
 
     public MotorcycleResponseDto(Motorcycle motorcycle) {
@@ -30,7 +31,8 @@ public record MotorcycleResponseDto(
                 motorcycle.getDocumentUrl(),
                 motorcycle.getMileage(),
                 motorcycle.getAvailable(),
-                motorcycle.getActive()
+                motorcycle.getActive(),
+                new FinancialResponseDto(motorcycle.getFinancial())
         );
     }
 }

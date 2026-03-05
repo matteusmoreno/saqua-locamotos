@@ -1,5 +1,6 @@
 package br.com.matteusmoreno.domain.entity;
 
+import br.com.matteusmoreno.domain.model.Financial;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import lombok.*;
 import org.bson.BsonType;
@@ -27,5 +28,6 @@ public class Motorcycle {
     private Integer mileage;
     private Boolean available;
     private Boolean active;
+    private Financial financial;
 
 }

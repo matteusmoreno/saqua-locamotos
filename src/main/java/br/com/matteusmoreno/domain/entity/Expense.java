@@ -1,8 +1,8 @@
 package br.com.matteusmoreno.domain.entity;
 
+import br.com.matteusmoreno.domain.constant.ExpenseType;
 import br.com.matteusmoreno.domain.constant.PaymentMethod;
 import br.com.matteusmoreno.domain.constant.PaymentStatus;
-import br.com.matteusmoreno.domain.constant.PaymentType;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import lombok.*;
 import org.bson.BsonType;
@@ -13,18 +13,18 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@MongoEntity(collection = "payments")
+@MongoEntity(collection = "expenses")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter @Setter
-public class Payment {
+public class Expense {
 
     @BsonId
     @BsonRepresentation(BsonType.OBJECT_ID)
-    private String paymentId;
-    private String contractId;
-    private PaymentType type;
+    private String expenseId;
+    private String motorcycleId;
+    private ExpenseType type;
     private BigDecimal amount;
     private LocalDate dueDate;
     private LocalDate paidDate;
@@ -35,4 +35,3 @@ public class Payment {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
-

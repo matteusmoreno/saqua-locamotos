@@ -18,7 +18,8 @@ public enum Errors {
     INVALID_PASSWORD_RESET_TOKEN("Invalid or expired password reset token"),
     EMAIL_ALREADY_VERIFIED("Email is already verified"),
     EMAIL_NOT_VERIFIED("Email is not verified"),
-    INVALID_CURRENT_PASSWORD("Current password is incorrect");
+    INVALID_CURRENT_PASSWORD("Current password is incorrect"),
+    EXPENSE_NOT_FOUND("Expense not found");
 
     private final String displayName;
 

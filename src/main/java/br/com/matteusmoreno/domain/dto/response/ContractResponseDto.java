@@ -23,7 +23,7 @@ public record ContractResponseDto(
         BigDecimal weeklyAmount,
         BigDecimal totalAmount,
         String contractUrl,
-        List<String> paymentIds,
+        List<PaymentResponseDto> payments,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -42,7 +42,7 @@ public record ContractResponseDto(
                 contract.getWeeklyAmount(),
                 contract.getTotalAmount(),
                 contract.getContractUrl(),
-                contract.getPaymentIds(),
+                contract.getPayments().stream().map(PaymentResponseDto::new).toList(),
                 contract.getCreatedAt(),
                 contract.getUpdatedAt()
         );

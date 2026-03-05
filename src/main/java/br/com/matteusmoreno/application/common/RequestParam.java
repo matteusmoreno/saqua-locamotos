@@ -14,6 +14,7 @@ public class RequestParam {
     public static final String COMPLEMENT = "complement";
     public static final String FILE = "file";
     public static final String EMAIL = "email";
+    public static final String EXPENSE_ID = "expenseId";
 
     private RequestParam(){}
 

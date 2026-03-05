@@ -6,6 +6,7 @@ import br.com.matteusmoreno.application.service.CloudinaryService;
 import br.com.matteusmoreno.domain.constant.CloudinaryFolder;
 import br.com.matteusmoreno.domain.dto.request.UpdateMotorcycleRequestDto;
 import br.com.matteusmoreno.domain.entity.Motorcycle;
+import br.com.matteusmoreno.domain.model.Financial;
 import br.com.matteusmoreno.domain.repository.MotorcycleRepository;
 import br.com.matteusmoreno.domain.dto.request.CreateMotorcycleRequestDto;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -45,6 +46,7 @@ public class MotorcycleService {
                 .mileage(request.mileage())
                 .available(request.available())
                 .active(true)
+                .financial(Financial.builder().build())
                 .build();
 
         this.motorcycleRepository.persist(motorcycle);

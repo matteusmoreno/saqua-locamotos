@@ -44,7 +44,7 @@ public class Contract {
     private String contractUrl;
 
     @Builder.Default
-    private List<String> paymentIds = new ArrayList<>();
+    private List<Payment> payments = new ArrayList<>();
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
