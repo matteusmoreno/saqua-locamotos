@@ -2,6 +2,7 @@ package br.com.matteusmoreno.domain.service;
 
 import br.com.matteusmoreno.application.exception.MotorcycleDocumentNotFoundException;
 import br.com.matteusmoreno.application.exception.MotorcycleNotAvailableException;
+import br.com.matteusmoreno.application.exception.PictureNotFoundException;
 import br.com.matteusmoreno.application.service.CloudinaryService;
 import br.com.matteusmoreno.domain.constant.CloudinaryFolder;
 import br.com.matteusmoreno.domain.dto.request.UpdateMotorcycleRequestDto;
@@ -128,6 +129,39 @@ public class MotorcycleService {
         this.motorcycleRepository.update(motorcycle);
 
         log.info("Motorcycle {} enabled", motorcycleId);
+        return motorcycle;
+    }
+
+    public Motorcycle uploadPicture(String motorcycleId, byte[] fileBytes) {
+        log.info("Uploading motorcycle picture {}", motorcycleId);
+        Motorcycle motorcycle = this.findMotorcycleById(motorcycleId);
+
+        if (motorcycle.getPictureUrl() != null && !motorcycle.getPictureUrl().isBlank()) {
+            String oldPublicId = this.cloudinaryService.extractPublicId(motorcycle.getPictureUrl());
+            this.cloudinaryService.delete(oldPublicId, CloudinaryFolder.MOTORCYCLE_PICTURE.getResourceType());
+        }
+
+        String url = this.cloudinaryService.upload(fileBytes, motorcycle.getMotorcycleId(), CloudinaryFolder.MOTORCYCLE_PICTURE);
+        motorcycle.setPictureUrl(url);
+        motorcycleRepository.update(motorcycle);
+
+        log.info("Motorcycle picture uploaded");
+        return motorcycle;
+    }
+
+    public Motorcycle deletePicture(String motorcycleId) {
+        log.info("Deleting motorcycle picture {}", motorcycleId);
+        Motorcycle motorcycle = this.findMotorcycleById(motorcycleId);
+
+        if (motorcycle.getPictureUrl() == null || motorcycle.getPictureUrl().isBlank()) {
+            throw new PictureNotFoundException();
+        }
+
+        this.cloudinaryService.delete(this.cloudinaryService.extractPublicId(motorcycle.getPictureUrl()), CloudinaryFolder.MOTORCYCLE_PICTURE.getResourceType());
+        motorcycle.setPictureUrl(null);
+
+        motorcycleRepository.update(motorcycle);
+        log.info("Motorcycle picture deleted");
         return motorcycle;
     }
 

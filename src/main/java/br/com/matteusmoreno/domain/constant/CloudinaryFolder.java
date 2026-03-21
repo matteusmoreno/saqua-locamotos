@@ -8,7 +8,8 @@ public enum CloudinaryFolder {
     USER_PICTURE("users/pictures", "image"),
     USER_DOCUMENT("users/documents", "raw"),
     CONTRACT_FILE("contracts/files", "raw"),
-    MOTORCYCLE_DOCUMENT("motorcycles/documents", "raw");
+    MOTORCYCLE_DOCUMENT("motorcycles/documents", "raw"),
+    MOTORCYCLE_PICTURE("motorcycles/pictures", "image");
 
 
     private final String path;

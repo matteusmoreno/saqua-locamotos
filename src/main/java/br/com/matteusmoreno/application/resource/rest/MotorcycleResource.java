@@ -106,6 +106,31 @@ public class MotorcycleResource {
     }
 
     @POST
+    @Path("/{motorcycleId}/upload-picture")
+    @RolesAllowed("ADMIN")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response uploadPicture(
+            @PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId,
+            @RestForm(RequestParam.FILE) @NotNull(message = "File is required") FileUpload file) throws IOException {
+
+        byte[] fileBytes = Files.readAllBytes(file.uploadedFile());
+        if (fileBytes.length == 0)
+            return Response.status(Response.Status.BAD_REQUEST).entity("File must not be empty").build();
+
+        Motorcycle motorcycle = this.motorcycleController.uploadPicture(motorcycleId, fileBytes);
+        return Response.status(Response.Status.OK).entity(new MotorcycleResponseDto(motorcycle)).build();
+    }
+
+    @DELETE
+    @Path("/{motorcycleId}/delete-picture")
+    @RolesAllowed("ADMIN")
+    public Response deletePicture(@PathParam(RequestParam.MOTORCYCLE_ID) String motorcycleId) {
+        Motorcycle motorcycle = this.motorcycleController.deletePicture(motorcycleId);
+
+        return Response.status(Response.Status.OK).entity(motorcycle).build();
+    }
+
+    @POST
     @Path("/{motorcycleId}/upload-document")
     @RolesAllowed("ADMIN")
     @Consumes(MediaType.MULTIPART_FORM_DATA)

@@ -45,6 +45,14 @@ public class MotorcycleController {
         return this.motorcycleService.enableMotorcycle(motorcycleId);
     }
 
+    public Motorcycle uploadPicture(String motorcycleId, byte[] fileBytes) {
+        return this.motorcycleService.uploadPicture(motorcycleId, fileBytes);
+    }
+
+    public Motorcycle deletePicture(String motorcycleId) {
+        return this.motorcycleService.deletePicture(motorcycleId);
+    }
+
     public Motorcycle uploadDocument(String motorcycleId, byte[] fileBytes) {
         return this.motorcycleService.uploadDocument(motorcycleId, fileBytes);
     }

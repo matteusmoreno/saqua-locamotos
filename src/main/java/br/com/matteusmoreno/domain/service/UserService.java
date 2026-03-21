@@ -161,7 +161,7 @@ public class UserService {
 
     public User uploadPicture(String userId, byte[] fileBytes) {
         User user = this.findUserById(userId);
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = this.dateUtils.now();
 
         if (user.getPictureUrl() != null && !user.getPictureUrl().isBlank()) {
             String oldPublicId = this.cloudinaryService.extractPublicId(user.getPictureUrl());
@@ -179,7 +179,7 @@ public class UserService {
 
     public User deletePicture(String userId) {
         User user = this.findUserById(userId);
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = this.dateUtils.now();
 
         if (user.getPictureUrl() == null || user.getPictureUrl().isBlank()) {
             throw new PictureNotFoundException();
