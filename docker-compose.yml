@@ -1,0 +1,40 @@
+services:
+  saqua-locamotos-backend:
+    image: matteusmoreno/saqua-locamotos-backend:latest
+    container_name: saqua-locamotos-backend
+    ports:
+      - "9292:9292"
+    environment:
+      # App
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:9292}
+      APP_SAQUA_LOCAMOTOS_TIMEZONE: ${APP_SAQUA_LOCAMOTOS_TIMEZONE:-America/Sao_Paulo}
+      APP_SAQUA_LOCAMOTOS_TOKEN_EXPIRATION_HOURS: ${APP_SAQUA_LOCAMOTOS_TOKEN_EXPIRATION_HOURS:-24}
+      # MongoDB
+      DBAAS_MONGODB_ENDPOINT: ${DBAAS_MONGODB_ENDPOINT}
+      DBAAS_MONGODB_DBNAME: ${DBAAS_MONGODB_DBNAME:-saqua-locamotos}
+      # Cloudinary
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+
+      # E-mail (SMTP)
+      MAILER_FROM: ${MAILER_FROM:-relacionamento@saqualocamotos.com.br}
+      MAILER_HOST: ${MAILER_HOST:-smtp.gmail.com}
+      MAILER_PORT: ${MAILER_PORT:-587}
+      MAILER_USERNAME: ${MAILER_USERNAME}
+      MAILER_PASSWORD: ${MAILER_PASSWORD}
+
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9292/q/health/live || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - saqua-network
+
+networks:
+  saqua-network:
+    driver: bridge
+
