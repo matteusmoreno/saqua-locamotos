@@ -35,6 +35,21 @@ If you want to build an _über-jar_, execute the following command:
 
 The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
 
+## Publicação automática da imagem no Docker Hub
+
+O workflow em `.github/workflows/ci.yml` faz o seguinte:
+
+- executa `./mvnw verify -B` em `push` e `pull_request` para a branch `main`
+- publica a imagem Docker `matteusmoreno/saqua-locamotos-backend` no Docker Hub quando houver `push` na `main`
+- gera as tags `latest` e `sha-<commit>`
+
+Para funcionar no GitHub Actions, configure estes secrets no repositório:
+
+- `DOCKERHUB_USERNAME`: seu usuário do Docker Hub
+- `DOCKERHUB_TOKEN`: um access token do Docker Hub com permissão de push
+
+Depois disso, cada push na `main` atualizará a tag `latest` da imagem no Docker Hub.
+
 ## Creating a native executable
 
 You can create a native executable using:

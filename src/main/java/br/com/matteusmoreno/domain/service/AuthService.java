@@ -1,6 +1,7 @@
 package br.com.matteusmoreno.domain.service;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import br.com.matteusmoreno.application.exception.InvalidLoginException;
 import br.com.matteusmoreno.application.exception.UserNotFoundException;
 import br.com.matteusmoreno.domain.dto.request.LoginRequestDto;
 import br.com.matteusmoreno.domain.dto.response.LoginResponseDto;
@@ -22,7 +23,7 @@ public class AuthService {
     }
 
     public LoginResponseDto login(LoginRequestDto request)
-            throws InvalidCredentialsException, UserNotFoundException {
+            throws UserNotFoundException {
         log.info("Attempting to authenticate user with email: {}", request.email());
 
         User user = this.userService.findUserByEmail(request.email());
@@ -30,7 +31,7 @@ public class AuthService {
         BCrypt.Result result = BCrypt.verifyer().verify(request.password().toCharArray(), user.getPassword());
         if (!result.verified) {
             log.warn("Invalid password for email: {}", request.email());
-            throw new InvalidCredentialsException();
+            throw new InvalidLoginException();
         }
 
         log.info("User {} authenticated successfully", user.getUserId());
