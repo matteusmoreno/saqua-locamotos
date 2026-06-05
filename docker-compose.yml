@@ -1,5 +1,6 @@
 services:
   saqua-locamotos-backend:
+    build: .
     image: matteusmoreno/saqua-locamotos-backend:latest
     container_name: saqua-locamotos-backend
     ports:
