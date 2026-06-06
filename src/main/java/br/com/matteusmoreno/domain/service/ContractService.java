@@ -24,14 +24,16 @@ import java.util.List;
 public class ContractService {
 
     private final ContractRepository contractRepository;
+    private final PaymentService paymentService;
     private final UserService userService;
     private final MotorcycleService motorcycleService;
     private final CloudinaryService cloudinaryService;
     private final PdfContractService pdfContractService;
     private final DateUtils dateUtils;
 
-    public ContractService(ContractRepository contractRepository, UserService userService, MotorcycleService motorcycleService, CloudinaryService cloudinaryService, PdfContractService pdfContractService, DateUtils dateUtils) {
+    public ContractService(ContractRepository contractRepository, PaymentService paymentService, UserService userService, MotorcycleService motorcycleService, CloudinaryService cloudinaryService, PdfContractService pdfContractService, DateUtils dateUtils) {
         this.contractRepository = contractRepository;
+        this.paymentService = paymentService;
         this.userService = userService;
         this.motorcycleService = motorcycleService;
         this.cloudinaryService = cloudinaryService;
@@ -69,6 +71,7 @@ public class ContractService {
 
         this.contractRepository.persist(contract);
         this.motorcycleService.setMotorcycleAvailability(motorcycle.getMotorcycleId(), false);
+        this.paymentService.createInitialMonthlyPayment(contract);
 
         log.info("Contract created with ID: {} for user: {} and motorcycle: {}",
                 contract.getContractId(), user.getUserId(), motorcycle.getMotorcycleId());

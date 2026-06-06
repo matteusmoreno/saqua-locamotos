@@ -3,6 +3,7 @@ package br.com.matteusmoreno.domain.service;
 import br.com.matteusmoreno.application.utils.DateUtils;
 import br.com.matteusmoreno.domain.constant.PaymentStatus;
 import br.com.matteusmoreno.domain.constant.PaymentType;
+import br.com.matteusmoreno.domain.dto.request.CreateContractRequestDto;
 import br.com.matteusmoreno.domain.dto.request.CreatePaymentRequestDto;
 import br.com.matteusmoreno.domain.dto.request.RegisterPaymentRequestDto;
 import br.com.matteusmoreno.domain.entity.Contract;
@@ -122,6 +123,55 @@ public class PaymentService {
 
         log.info("Payment {} deleted from contract {}", paymentId, payment.getContractId());
         return payment;
+    }
+
+    public void createInitialMonthlyPayment(Contract contract) {
+        log.info("Creating initial monthly payment");
+        this.createDepositPayment(contract);
+        this.createFirstMonthlyPayment(contract);
+        log.info("Initial monthly payment created");
+    }
+
+    protected void createDepositPayment(Contract contract) {
+        log.info("Creating deposit payment");
+        Payment deposit = Payment.builder()
+                .contractId(contract.getContractId())
+                .type(PaymentType.DEPOSIT)
+                .amount(contract.getDepositAmount())
+                .dueDate(contract.getStartDate())
+                .status(PaymentStatus.PENDING)
+                .description("Automatic deposit payment created at contract start")
+                .createdAt(this.dateUtils.now())
+                .updatedAt(this.dateUtils.now())
+                .build();
+
+        this.paymentRepository.persist(deposit);
+        this.financialService.saveEarning(contract.getMotorcycle(), deposit);
+
+        contract.getPayments().add(deposit);
+        this.contractRepository.update(contract);
+        log.info("Payment created with ID: {} for contract: {}", deposit.getPaymentId(), contract.getContractId());
+    }
+
+    protected void createFirstMonthlyPayment(Contract contract) {
+        log.info("Creating first monthly payment");
+
+        Payment firstWeeklyPayment = Payment.builder()
+                .contractId(contract.getContractId())
+                .type(PaymentType.WEEKLY)
+                .amount(contract.getWeeklyAmount())
+                .dueDate(this.dateUtils.now().toLocalDate())
+                .status(PaymentStatus.PENDING)
+                .description("Automatic first monthly payment created at contract start")
+                .createdAt(this.dateUtils.now())
+                .updatedAt(this.dateUtils.now())
+                .build();
+
+        this.paymentRepository.persist(firstWeeklyPayment);
+        this.financialService.saveEarning(contract.getMotorcycle(), firstWeeklyPayment);
+
+        contract.getPayments().add(firstWeeklyPayment);
+        this.contractRepository.update(contract);
     }
 }
 
