@@ -2,6 +2,7 @@ package br.com.matteusmoreno.domain.service;
 
 import br.com.matteusmoreno.application.utils.DateUtils;
 import br.com.matteusmoreno.domain.constant.PaymentStatus;
+import br.com.matteusmoreno.domain.constant.PaymentType;
 import br.com.matteusmoreno.domain.dto.request.CreatePaymentRequestDto;
 import br.com.matteusmoreno.domain.dto.request.RegisterPaymentRequestDto;
 import br.com.matteusmoreno.domain.entity.Contract;
@@ -90,6 +91,13 @@ public class PaymentService {
 
         // Sincroniza o objeto payment na lista do contrato (status PAID)
         contract.getPayments().replaceAll(p -> p.getPaymentId().equals(payment.getPaymentId()) ? payment : p);
+
+        // Seta o caução como pago
+        if (payment.getStatus() == PaymentStatus.PAID && payment.getType() == PaymentType.DEPOSIT) {
+            contract.setDepositPaid(true);
+            log.info("Deposit payment registered for contract {}. Marking deposit as paid.", contract.getContractId());
+        }
+
         this.contractRepository.update(contract);
 
         // Sincroniza o Financial da moto com o payment atualizado (status PAID)
