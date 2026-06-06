@@ -132,6 +132,40 @@ public class PaymentService {
         log.info("Initial monthly payment created");
     }
 
+    public void updateOverduePayments() {
+        LocalDate today = this.dateUtils.today();
+        LocalDateTime now = this.dateUtils.now();
+
+        List<Payment> overduePayments = paymentRepository.findPendingAndOverdue(today);
+
+        if (overduePayments.isEmpty()) {
+            log.info("No overdue payments found in today's routine.");
+            return;
+        }
+
+        for (Payment payment : overduePayments) {
+            // Atualiza a entidade principal Payment
+            payment.setStatus(PaymentStatus.OVERDUE);
+            payment.setUpdatedAt(now);
+            this.paymentRepository.update(payment);
+
+            // Sincroniza o Contract (lista interna de pagamentos)
+            Contract contract = this.contractRepository.findContractById(payment.getContractId());
+            if (contract != null) {
+                contract.getPayments().replaceAll(p ->
+                        p.getPaymentId().equals(payment.getPaymentId()) ? payment : p);
+                contract.setUpdatedAt(now);
+                this.contractRepository.update(contract);
+
+                // Sincroniza o Financial dentro da Motorcycle correspondente
+                Motorcycle motorcycle = this.motorcycleService.findMotorcycleById(contract.getMotorcycle().getMotorcycleId());
+                this.financialService.updateEarning(motorcycle, payment);
+            }
+        }
+
+        log.info("{} payments were marked as OVERDUE.", overduePayments.size());
+    }
+
     protected void createDepositPayment(Contract contract) {
         log.info("Creating deposit payment");
         Payment deposit = Payment.builder()
