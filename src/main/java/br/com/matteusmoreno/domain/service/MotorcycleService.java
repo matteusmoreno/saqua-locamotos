@@ -113,6 +113,10 @@ public class MotorcycleService {
         log.info("Disabling motorcycle {}", motorcycleId);
         Motorcycle motorcycle = this.findMotorcycleById(motorcycleId);
 
+        if (!Boolean.TRUE.equals(motorcycle.getAvailable())) {
+            throw new MotorcycleNotAvailableException();
+        }
+
         motorcycle.setActive(false);
         motorcycle.setAvailable(false);
         this.motorcycleRepository.update(motorcycle);
@@ -124,6 +128,8 @@ public class MotorcycleService {
     public Motorcycle enableMotorcycle(String motorcycleId) {
         log.info("Enabling motorcycle {}", motorcycleId);
         Motorcycle motorcycle = this.findMotorcycleById(motorcycleId);
+
+        if (Boolean.TRUE.equals(motorcycle.getActive())) return motorcycle;
 
         motorcycle.setActive(true);
         this.motorcycleRepository.update(motorcycle);
