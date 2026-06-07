@@ -1,97 +1,337 @@
-# saqua-locamotos
+# Saqua Locamotos - Infraestrutura e Deploy
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+## Servidor
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+### Oracle Cloud Free Tier
 
-## Running the application in dev mode
+* Sistema Operacional: Oracle Linux 9.7
+* IP Público: `152.67.34.202`
+* Usuário SSH: `opc`
 
-You can run your application in dev mode that enables live coding using:
+---
 
-```shell script
-./mvnw quarkus:dev
+## Conexão SSH
+
+### Conectar na VM
+
+```bash
+ssh -i ~/Downloads/github-oracle opc@152.67.34.202
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+---
 
-## Packaging and running the application
+## Estrutura atual da VM
 
-The application can be packaged using:
+### Home do usuário
 
-```shell script
-./mvnw package
+```text
+/home/opc
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+### Arquivos existentes
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
+```text
+/home/opc/docker-compose.yml
+/home/opc/.env
+/home/opc/cloudflared/
+/home/opc/.ssh/
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+---
 
-## Publicação automática da imagem no Docker Hub
+## Docker
 
-O workflow em `.github/workflows/ci.yml` faz o seguinte:
+### Ver containers em execução
 
-- executa `./mvnw verify -B` em `push` e `pull_request` para a branch `main`
-- publica a imagem Docker `matteusmoreno/saqua-locamotos-backend` no Docker Hub quando houver `push` na `main`
-- gera as tags `latest` e `sha-<commit>`
-
-Para funcionar no GitHub Actions, configure estes secrets no repositório:
-
-- `DOCKERHUB_USERNAME`: seu usuário do Docker Hub
-- `DOCKERHUB_TOKEN`: um access token do Docker Hub com permissão de push
-
-Depois disso, cada push na `main` atualizará a tag `latest` da imagem no Docker Hub.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
+```bash
+docker ps
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+### Ver logs da API
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
+```bash
+docker logs -f saqua-locamotos-backend
 ```
 
-You can then execute your native executable with: `./target/saqua-locamotos-1.0.0-SNAPSHOT-runner`
+### Reiniciar container
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+```bash
+docker restart saqua-locamotos-backend
+```
 
-## Related Guides
+### Atualizar para a última imagem
 
-- REST ([guide](https://quarkus.io/guides/rest)): A Jakarta REST implementation utilizing build time processing and Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
-- Micrometer Registry Prometheus ([guide](https://quarkus.io/guides/micrometer)): Enable Prometheus support for Micrometer
-- REST resources for MongoDB with Panache ([guide](https://quarkus.io/guides/rest-data-panache)): Generate Jakarta REST resources for your MongoDB entities and repositories
-- Hibernate Validator ([guide](https://quarkus.io/guides/validation)): Validate object properties (field, getter) and method parameters for your beans (REST, CDI, Jakarta Persistence)
-- REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
-- SmallRye JWT ([guide](https://quarkus.io/guides/security-jwt)): Secure your applications with JSON Web Token
-- SmallRye Health ([guide](https://quarkus.io/guides/smallrye-health)): Monitor service health
-- Micrometer metrics ([guide](https://quarkus.io/guides/micrometer)): Instrument the runtime and your application with dimensional metrics using Micrometer.
+```bash
+cd /home/opc
 
-## Provided Code
+docker compose pull
+docker compose up -d --force-recreate
+```
 
-### REST
+---
 
-Easily start your REST Web Services
+## Docker Compose
 
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+### Localização
 
-### SmallRye Health
+```text
+/home/opc/docker-compose.yml
+```
 
-Monitor your application's health using SmallRye Health
+### Imagem utilizada
 
-[Related guide section...](https://quarkus.io/guides/smallrye-health)
+```text
+matteusmoreno/saqua-locamotos-backend:latest
+```
 
-por fazer:
-- implementar autenticação JWT
+---
+
+## Variáveis de Ambiente
+
+### Arquivo
+
+```text
+/home/opc/.env
+```
+
+### Editar
+
+```bash
+nano /home/opc/.env
+```
+
+### Após alterar
+
+```bash
+docker compose up -d --force-recreate
+```
+
+---
+
+## CI/CD
+
+### Workflow
+
+```text
+.github/workflows/ci.yml
+```
+
+### Fluxo
+
+```text
+git push main
+        ↓
+GitHub Actions
+        ↓
+Build Quarkus
+        ↓
+Build Docker
+        ↓
+Push Docker Hub
+        ↓
+SSH Oracle
+        ↓
+docker compose pull
+        ↓
+docker compose up -d --force-recreate
+```
+
+### Secrets utilizados
+
+```text
+DOCKERHUB_USERNAME
+DOCKERHUB_TOKEN
+
+ORACLE_HOST
+ORACLE_USER
+ORACLE_SSH_KEY
+```
+
+---
+
+## Backend
+
+### Porta da aplicação
+
+```text
+9292
+```
+
+### Health Check
+
+```bash
+curl http://localhost:9292/q/health
+```
+
+### Health Check Live
+
+```bash
+curl http://localhost:9292/q/health/live
+```
+
+---
+
+## Swagger
+
+### Swagger Local
+
+```text
+http://localhost:9292/swagger-ui
+```
+
+### Swagger Público
+
+```text
+https://instances-fuel-shipping-hands.trycloudflare.com/swagger-ui
+```
+
+### OpenAPI
+
+```text
+https://instances-fuel-shipping-hands.trycloudflare.com/q/openapi
+```
+
+---
+
+## Base URL Atual
+
+```text
+https://instances-fuel-shipping-hands.trycloudflare.com
+```
+
+### Exemplo Axios
+
+```javascript
+const api = axios.create({
+  baseURL: 'https://instances-fuel-shipping-hands.trycloudflare.com',
+});
+```
+
+---
+
+## Cloudflare Tunnel
+
+### Diretório
+
+```text
+/home/opc/cloudflared
+```
+
+### Ver versão
+
+```bash
+cd ~/cloudflared
+
+./cloudflared --version
+```
+
+### Iniciar túnel
+
+```bash
+cd ~/cloudflared
+
+./cloudflared tunnel --url http://localhost:9292
+```
+
+### URL atual
+
+```text
+https://instances-fuel-shipping-hands.trycloudflare.com
+```
+
+### Importante
+
+Esta URL foi criada usando Quick Tunnel.
+
+Se o processo for encerrado ou a VM reiniciar:
+
+* A URL pode mudar.
+* Será necessário criar um novo túnel.
+
+Próxima melhoria recomendada:
+
+* Criar um Cloudflare Named Tunnel permanente.
+
+---
+
+## Banco de Dados
+
+### Provedor
+
+```text
+MongoDB Atlas
+```
+
+### Banco
+
+```text
+saqua-locamotos
+```
+
+---
+
+## Deploy Manual
+
+### Atualizar imagem
+
+```bash
+cd /home/opc
+
+docker compose pull
+```
+
+### Recriar container
+
+```bash
+docker compose up -d --force-recreate
+```
+
+### Limpar imagens antigas
+
+```bash
+docker image prune -f
+```
+
+---
+
+## Comandos Úteis
+
+### Ver uso de memória
+
+```bash
+free -h
+```
+
+### Ver uso de disco
+
+```bash
+df -h
+```
+
+### Ver processos
+
+```bash
+top
+```
+
+### Ver portas abertas
+
+```bash
+sudo ss -tulpn
+```
+
+### Ver informações do sistema
+
+```bash
+cat /etc/os-release
+```
+
+---
+
+## Observações
+
+Atualmente o backend está hospedado gratuitamente em uma VM Oracle Cloud e atualizado automaticamente via GitHub Actions.
+
+A API está exposta publicamente através de um Cloudflare Tunnel HTTPS.
+
+O único ponto pendente para produção definitiva é substituir o Quick Tunnel por um Cloudflare Tunnel permanente ou por um domínio próprio.
