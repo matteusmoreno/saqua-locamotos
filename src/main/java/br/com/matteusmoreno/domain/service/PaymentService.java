@@ -3,7 +3,6 @@ package br.com.matteusmoreno.domain.service;
 import br.com.matteusmoreno.application.utils.DateUtils;
 import br.com.matteusmoreno.domain.constant.PaymentStatus;
 import br.com.matteusmoreno.domain.constant.PaymentType;
-import br.com.matteusmoreno.domain.dto.request.CreateContractRequestDto;
 import br.com.matteusmoreno.domain.dto.request.CreatePaymentRequestDto;
 import br.com.matteusmoreno.domain.dto.request.RegisterPaymentRequestDto;
 import br.com.matteusmoreno.domain.entity.Contract;
@@ -168,6 +167,8 @@ public class PaymentService {
 
     protected void createDepositPayment(Contract contract) {
         log.info("Creating deposit payment");
+        Motorcycle motorcycle = this.motorcycleService.findMotorcycleById(contract.getMotorcycle().getMotorcycleId());
+
         Payment deposit = Payment.builder()
                 .contractId(contract.getContractId())
                 .type(PaymentType.DEPOSIT)
@@ -180,7 +181,7 @@ public class PaymentService {
                 .build();
 
         this.paymentRepository.persist(deposit);
-        this.financialService.saveEarning(contract.getMotorcycle(), deposit);
+        this.financialService.saveEarning(motorcycle, deposit);
 
         contract.getPayments().add(deposit);
         this.contractRepository.update(contract);
@@ -189,6 +190,7 @@ public class PaymentService {
 
     protected void createFirstMonthlyPayment(Contract contract) {
         log.info("Creating first monthly payment");
+        Motorcycle motorcycle = this.motorcycleService.findMotorcycleById(contract.getMotorcycle().getMotorcycleId());
 
         Payment firstWeeklyPayment = Payment.builder()
                 .contractId(contract.getContractId())
@@ -202,7 +204,7 @@ public class PaymentService {
                 .build();
 
         this.paymentRepository.persist(firstWeeklyPayment);
-        this.financialService.saveEarning(contract.getMotorcycle(), firstWeeklyPayment);
+        this.financialService.saveEarning(motorcycle, firstWeeklyPayment);
 
         contract.getPayments().add(firstWeeklyPayment);
         this.contractRepository.update(contract);
