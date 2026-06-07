@@ -22,6 +22,9 @@ public class JwtService {
         return Jwt.issuer(jwtIssuer)
                 .subject(user.getUserId())
                 .upn(user.getEmail())
+                .claim("userId", user.getUserId() != null ? user.getUserId() : null)
+                .claim("name", user.getName())
+                .claim("emailVerified", user.getEmailVerified())
                 .groups(user.getRole().name())
                 .expiresIn(Duration.ofHours(tokenExpirationInHours))
                 .sign();
