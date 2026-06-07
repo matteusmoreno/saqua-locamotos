@@ -7,6 +7,7 @@ import br.com.matteusmoreno.domain.dto.request.UpdateUserRequestDto;
 import br.com.matteusmoreno.domain.entity.User;
 import br.com.matteusmoreno.domain.service.UserService;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.jose4j.jwk.Use;
 
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,10 @@ public class UserController {
 
     public User createUser(CreateUserRequestDto request) {
         return this.userService.createCustomer(request);
+    }
+
+    public User createAdmin(CreateUserRequestDto request, String secretKey) {
+        return this.userService.createAdmin(request, secretKey);
     }
 
     public User findUserById(String userId) {

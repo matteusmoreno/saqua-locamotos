@@ -1,5 +1,6 @@
 package br.com.matteusmoreno.domain.service;
 
+import br.com.matteusmoreno.application.common.ContextComponent;
 import br.com.matteusmoreno.application.exception.*;
 import br.com.matteusmoreno.application.service.CloudinaryService;
 import br.com.matteusmoreno.application.service.EmailService;
@@ -17,6 +18,7 @@ import br.com.matteusmoreno.domain.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.time.LocalDateTime;
@@ -32,6 +34,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final AddressService addressService;
     private final PasswordService passwordService;
+    private final ContextComponent  contextComponent;
     private final CloudinaryService cloudinaryService;
     private final EmailService emailService;
     private final JsonWebToken jwt;
@@ -39,10 +42,11 @@ public class UserService {
     private final UriInfo uriInfo;
     private final DateUtils dateUtils;
 
-    public UserService(UserRepository userRepository, AddressService addressService, PasswordService passwordService, CloudinaryService cloudinaryService, EmailService emailService, JsonWebToken jwt, ErrorService errorService, UriInfo uriInfo, DateUtils dateUtils) {
+    public UserService(UserRepository userRepository, AddressService addressService, PasswordService passwordService, ContextComponent contextComponent, CloudinaryService cloudinaryService, EmailService emailService, JsonWebToken jwt, ErrorService errorService, UriInfo uriInfo, DateUtils dateUtils) {
         this.userRepository = userRepository;
         this.addressService = addressService;
         this.passwordService = passwordService;
+        this.contextComponent = contextComponent;
         this.cloudinaryService = cloudinaryService;
         this.emailService = emailService;
         this.jwt = jwt;
@@ -78,6 +82,38 @@ public class UserService {
         this.userRepository.persist(user);
         log.info("Customer created with ID: {}", user.getUserId());
 
+        this.emailService.sendWelcomeEmail(user.getName(), user.getEmail(), user.getCpf());
+
+        return user;
+    }
+
+    public User createAdmin(CreateUserRequestDto request, String secretKey) {
+        log.info("Creating admin with email: {}", request.email());
+        this.contextComponent.authenticateCriticalAction(secretKey);
+        this.validateExistingEmailOrCpfOrRgOrPhone(request.email(), request.cpf(), request.rg(), request.phone());
+        Address address = this.addressService.getAddress(request.address());
+        String passwordHash = this.passwordService.encryptPassword(request.cpf());
+        LocalDateTime now = LocalDateTime.now();
+
+        User user = User.builder()
+                .name(request.name())
+                .email(request.email())
+                .emailVerified(false)
+                .password(passwordHash)
+                .phone(request.phone())
+                .cpf(request.cpf())
+                .rg(request.rg())
+                .occupation(request.occupation())
+                .maritalStatus(request.maritalStatus())
+                .address(address)
+                .pictureUrl(request.pictureUrl())
+                .role(UserRole.ADMIN)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
+
+        this.userRepository.persist(user);
+        log.info("Admin created with ID: {}", user.getUserId());
         this.emailService.sendWelcomeEmail(user.getName(), user.getEmail(), user.getCpf());
 
         return user;

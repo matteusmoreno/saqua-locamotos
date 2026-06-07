@@ -49,6 +49,17 @@ public class UserResource {
         return Response.status(Response.Status.CREATED).entity(new UserResponseDto(user)).build();
     }
 
+    @POST
+    @Path("/admin/create")
+    @RolesAllowed("ADMIN")
+    public Response createAdmin(
+            @HeaderParam(RequestParam.ADMIN_SECRET_KET) @NotNull String secretKey,
+            @Valid CreateUserRequestDto request) {
+        User user = this.userController.createAdmin(request, secretKey);
+
+        return Response.status(Response.Status.CREATED).entity(new UserResponseDto(user)).build();
+    }
+
     @GET
     @Path("/{userId}")
     @RolesAllowed({"ADMIN", "CUSTOMER"})

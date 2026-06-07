@@ -15,6 +15,7 @@ public class RequestParam {
     public static final String FILE = "file";
     public static final String EMAIL = "email";
     public static final String EXPENSE_ID = "expenseId";
+    public static final String ADMIN_SECRET_KET = "X-Admin-Secret-Key";
 
     private RequestParam(){}
 
