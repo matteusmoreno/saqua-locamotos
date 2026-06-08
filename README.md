@@ -1,18 +1,45 @@
-# Saqua Locamotos - Infraestrutura e Deploy
+# Saqua Locamotos - Infraestrutura
 
-## Servidor
+## Produção
 
-### Oracle Cloud Free Tier
+### Backend
 
-* Sistema Operacional: Oracle Linux 9.7
-* IP Público: `152.67.34.202`
-* Usuário SSH: `opc`
+Base URL:
+
+```text
+https://saqualocamotos.qzz.io
+```
+
+Swagger:
+
+```text
+https://saqualocamotos.qzz.io/swagger-ui/
+```
+
+OpenAPI:
+
+```text
+https://saqualocamotos.qzz.io/q/openapi
+```
+
+Health Check:
+
+```text
+https://saqualocamotos.qzz.io/q/health
+```
 
 ---
 
-## Conexão SSH
+## Oracle Cloud
 
-### Conectar na VM
+### VM
+
+* Oracle Linux 9.7
+* Forma: VM.Standard.E2.1.Micro
+* 1 OCPU
+* 1 GB RAM
+
+### Conexão SSH
 
 ```bash
 ssh -i ~/Downloads/github-oracle opc@152.67.34.202
@@ -20,37 +47,25 @@ ssh -i ~/Downloads/github-oracle opc@152.67.34.202
 
 ---
 
-## Estrutura atual da VM
-
-### Home do usuário
-
-```text
-/home/opc
-```
-
-### Arquivos existentes
-
-```text
-/home/opc/docker-compose.yml
-/home/opc/.env
-/home/opc/cloudflared/
-/home/opc/.ssh/
-```
-
----
-
 ## Docker
 
-### Ver containers em execução
+### Ver containers
 
 ```bash
 docker ps
 ```
 
-### Ver logs da API
+### Logs
 
 ```bash
 docker logs -f saqua-locamotos-backend
+```
+
+### Atualizar manualmente
+
+```bash
+docker compose pull
+docker compose up -d --force-recreate
 ```
 
 ### Reiniciar container
@@ -59,26 +74,53 @@ docker logs -f saqua-locamotos-backend
 docker restart saqua-locamotos-backend
 ```
 
-### Atualizar para a última imagem
-
-```bash
-cd /home/opc
-
-docker compose pull
-docker compose up -d --force-recreate
-```
-
 ---
 
-## Docker Compose
+## Arquivos importantes
 
-### Localização
+### Docker Compose
 
 ```text
 /home/opc/docker-compose.yml
 ```
 
-### Imagem utilizada
+### Variáveis de ambiente
+
+```text
+/home/opc/.env
+```
+
+### Nginx
+
+```text
+/etc/nginx/conf.d/api.conf
+```
+
+---
+
+## CI/CD
+
+Fluxo:
+
+```text
+git push main
+        ↓
+GitHub Actions
+        ↓
+Build Maven
+        ↓
+Build Docker
+        ↓
+Push Docker Hub
+        ↓
+Deploy Oracle via SSH
+        ↓
+docker compose pull
+        ↓
+docker compose up -d --force-recreate
+```
+
+Imagem Docker:
 
 ```text
 matteusmoreno/saqua-locamotos-backend:latest
@@ -86,183 +128,11 @@ matteusmoreno/saqua-locamotos-backend:latest
 
 ---
 
-## Variáveis de Ambiente
-
-### Arquivo
-
-```text
-/home/opc/.env
-```
-
-### Editar
-
-```bash
-nano /home/opc/.env
-```
-
-### Após alterar
-
-```bash
-docker compose up -d --force-recreate
-```
-
----
-
-## CI/CD
-
-### Workflow
-
-```text
-.github/workflows/ci.yml
-```
-
-### Fluxo
-
-```text
-git push main
-        ↓
-GitHub Actions
-        ↓
-Build Quarkus
-        ↓
-Build Docker
-        ↓
-Push Docker Hub
-        ↓
-SSH Oracle
-        ↓
-docker compose pull
-        ↓
-docker compose up -d --force-recreate
-```
-
-### Secrets utilizados
-
-```text
-DOCKERHUB_USERNAME
-DOCKERHUB_TOKEN
-
-ORACLE_HOST
-ORACLE_USER
-ORACLE_SSH_KEY
-```
-
----
-
-## Backend
-
-### Porta da aplicação
-
-```text
-9292
-```
-
-### Health Check
-
-```bash
-curl http://localhost:9292/q/health
-```
-
-### Health Check Live
-
-```bash
-curl http://localhost:9292/q/health/live
-```
-
----
-
-## Swagger
-
-### Swagger Local
-
-```text
-http://localhost:9292/swagger-ui
-```
-
-### Swagger Público
-
-```text
-https://instances-fuel-shipping-hands.trycloudflare.com/swagger-ui
-```
-
-### OpenAPI
-
-```text
-https://instances-fuel-shipping-hands.trycloudflare.com/q/openapi
-```
-
----
-
-## Base URL Atual
-
-```text
-https://instances-fuel-shipping-hands.trycloudflare.com
-```
-
-### Exemplo Axios
-
-```javascript
-const api = axios.create({
-  baseURL: 'https://instances-fuel-shipping-hands.trycloudflare.com',
-});
-```
-
----
-
-## Cloudflare Tunnel
-
-### Diretório
-
-```text
-/home/opc/cloudflared
-```
-
-### Ver versão
-
-```bash
-cd ~/cloudflared
-
-./cloudflared --version
-```
-
-### Iniciar túnel
-
-```bash
-cd ~/cloudflared
-
-./cloudflared tunnel --url http://localhost:9292
-```
-
-### URL atual
-
-```text
-https://instances-fuel-shipping-hands.trycloudflare.com
-```
-
-### Importante
-
-Esta URL foi criada usando Quick Tunnel.
-
-Se o processo for encerrado ou a VM reiniciar:
-
-* A URL pode mudar.
-* Será necessário criar um novo túnel.
-
-Próxima melhoria recomendada:
-
-* Criar um Cloudflare Named Tunnel permanente.
-
----
-
 ## Banco de Dados
 
-### Provedor
+### MongoDB Atlas
 
-```text
-MongoDB Atlas
-```
-
-### Banco
+Banco:
 
 ```text
 saqua-locamotos
@@ -270,68 +140,54 @@ saqua-locamotos
 
 ---
 
-## Deploy Manual
+## Infraestrutura Atual
 
-### Atualizar imagem
-
-```bash
-cd /home/opc
-
-docker compose pull
-```
-
-### Recriar container
-
-```bash
-docker compose up -d --force-recreate
-```
-
-### Limpar imagens antigas
-
-```bash
-docker image prune -f
+```text
+Frontend (Vercel)
+        ↓
+Cloudflare
+        ↓
+https://saqualocamotos.qzz.io
+        ↓
+Nginx
+        ↓
+Docker Compose
+        ↓
+Quarkus
+        ↓
+MongoDB Atlas
 ```
 
 ---
 
 ## Comandos Úteis
 
-### Ver uso de memória
+### Ver saúde da aplicação
 
 ```bash
-free -h
+curl https://saqualocamotos.qzz.io/q/health
 ```
 
-### Ver uso de disco
+### Testar Swagger
+
+```text
+https://saqualocamotos.qzz.io/swagger-ui/
+```
+
+### Testar OpenAPI
+
+```text
+https://saqualocamotos.qzz.io/q/openapi
+```
+
+### Testar Nginx
 
 ```bash
-df -h
+sudo nginx -t
 ```
 
-### Ver processos
+### Reiniciar Nginx
 
 ```bash
-top
+sudo systemctl restart nginx
 ```
-
-### Ver portas abertas
-
-```bash
-sudo ss -tulpn
-```
-
-### Ver informações do sistema
-
-```bash
-cat /etc/os-release
-```
-
----
-
-## Observações
-
-Atualmente o backend está hospedado gratuitamente em uma VM Oracle Cloud e atualizado automaticamente via GitHub Actions.
-
-A API está exposta publicamente através de um Cloudflare Tunnel HTTPS.
-
-O único ponto pendente para produção definitiva é substituir o Quick Tunnel por um Cloudflare Tunnel permanente ou por um domínio próprio.
