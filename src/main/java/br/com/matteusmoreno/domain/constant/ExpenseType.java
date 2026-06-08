@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum ExpenseType {
+    ACQUISITION ("Acquisition"),
     MAINTENANCE("Maintenance"),
     UTILITIES("Utilities"),
     TAXES("Taxes"),
