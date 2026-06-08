@@ -121,6 +121,7 @@ public class UserService {
 
     public User findUserById(String userId) {
         log.info("Finding user with ID: {}", userId);
+        this.validateOwnership(userId);
         return this.userRepository.findUserById(userId);
     }
 
@@ -328,11 +329,7 @@ public class UserService {
     }
 
     protected void validateOwnership(String userId) {
-        boolean isAdmin = jwt.getGroups().contains("ADMIN");
-        if (!isAdmin && !jwt.getSubject().equals(userId)) {
-            log.warn("Access denied: caller {} tried to access user {}", jwt.getSubject(), userId);
-            throw new UnauthorizedAccessException();
-        }
+        this.contextComponent.validateOwnerOrAdmin(userId);
     }
 
     protected String getDocumentUrl(User user, String documentType) {

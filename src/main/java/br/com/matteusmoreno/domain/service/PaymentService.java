@@ -1,5 +1,6 @@
 package br.com.matteusmoreno.domain.service;
 
+import br.com.matteusmoreno.application.common.ContextComponent;
 import br.com.matteusmoreno.application.utils.DateUtils;
 import br.com.matteusmoreno.domain.constant.PaymentStatus;
 import br.com.matteusmoreno.domain.constant.PaymentType;
@@ -26,13 +27,15 @@ public class PaymentService {
     private final MotorcycleService motorcycleService;
     private final FinancialService financialService;
     private final DateUtils dateUtils;
+    private final ContextComponent contextComponent;
 
-    public PaymentService(PaymentRepository paymentRepository, ContractRepository contractRepository, MotorcycleService motorcycleService, FinancialService financialService, DateUtils dateUtils) {
+    public PaymentService(PaymentRepository paymentRepository, ContractRepository contractRepository, MotorcycleService motorcycleService, FinancialService financialService, DateUtils dateUtils, ContextComponent contextComponent) {
         this.paymentRepository = paymentRepository;
         this.contractRepository = contractRepository;
         this.motorcycleService = motorcycleService;
         this.financialService = financialService;
         this.dateUtils = dateUtils;
+        this.contextComponent = contextComponent;
     }
 
     public Payment createPayment(CreatePaymentRequestDto request) {
@@ -64,11 +67,16 @@ public class PaymentService {
 
     public Payment findPaymentById(String paymentId) {
         log.info("Finding payment with ID: {}", paymentId);
-        return this.paymentRepository.findPaymentById(paymentId);
+        Payment payment = this.paymentRepository.findPaymentById(paymentId);
+        Contract contract = this.contractRepository.findContractById(payment.getContractId());
+        this.contextComponent.validateOwnerOrAdmin(contract.getUser().getUserId());
+        return payment;
     }
 
     public List<Payment> findPaymentsByContractId(String contractId) {
         log.info("Finding payments for contract: {}", contractId);
+        Contract contract = this.contractRepository.findContractById(contractId);
+        this.contextComponent.validateOwnerOrAdmin(contract.getUser().getUserId());
         return this.paymentRepository.findPaymentsByContractId(contractId);
     }
 

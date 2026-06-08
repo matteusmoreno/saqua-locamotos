@@ -1,5 +1,6 @@
 package br.com.matteusmoreno.domain.service;
 
+import br.com.matteusmoreno.application.common.ContextComponent;
 import br.com.matteusmoreno.application.service.CloudinaryService;
 import br.com.matteusmoreno.application.service.PdfContractService;
 import br.com.matteusmoreno.application.utils.DateUtils;
@@ -30,8 +31,9 @@ public class ContractService {
     private final CloudinaryService cloudinaryService;
     private final PdfContractService pdfContractService;
     private final DateUtils dateUtils;
+    private final ContextComponent contextComponent;
 
-    public ContractService(ContractRepository contractRepository, PaymentService paymentService, UserService userService, MotorcycleService motorcycleService, CloudinaryService cloudinaryService, PdfContractService pdfContractService, DateUtils dateUtils) {
+    public ContractService(ContractRepository contractRepository, PaymentService paymentService, UserService userService, MotorcycleService motorcycleService, CloudinaryService cloudinaryService, PdfContractService pdfContractService, DateUtils dateUtils, ContextComponent contextComponent) {
         this.contractRepository = contractRepository;
         this.paymentService = paymentService;
         this.userService = userService;
@@ -39,6 +41,7 @@ public class ContractService {
         this.cloudinaryService = cloudinaryService;
         this.pdfContractService = pdfContractService;
         this.dateUtils = dateUtils;
+        this.contextComponent = contextComponent;
     }
 
     public Contract createContract(CreateContractRequestDto request) {
@@ -86,11 +89,14 @@ public class ContractService {
 
     public Contract findContractById(String contractId) {
         log.info("Finding contract with ID: {}", contractId);
-        return this.contractRepository.findContractById(contractId);
+        Contract contract = this.contractRepository.findContractById(contractId);
+        this.contextComponent.validateOwnerOrAdmin(contract.getUser().getUserId());
+        return contract;
     }
 
     public List<Contract> findContractsByUserId(String userId) {
         log.info("Finding contracts for user: {}", userId);
+        this.contextComponent.validateOwnerOrAdmin(userId);
         return this.contractRepository.findContractsByUserId(userId);
     }
 
